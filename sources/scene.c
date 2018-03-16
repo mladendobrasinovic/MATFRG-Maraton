@@ -3,9 +3,10 @@
 void draw_scene()
 {
     /* TEST: */
-    GLfloat material_diff[] = {1, 1, 1, 1};
+    GLfloat material_base[] = {1, 1, 1, 1};
 
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, material_diff);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, material_base);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, material_base);    
     
     glShadeModel(GL_FLAT);
     glutSolidCube(1.00);
