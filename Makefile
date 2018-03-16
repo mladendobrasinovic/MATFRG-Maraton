@@ -1,32 +1,41 @@
 ### Recepti kompilacije
+## Dokumentacija za gcc i make se moze dobiti sa info komandom
+
+## Projekat je struktuiran tako da su .h datoteke projekta u ./headers
+## direktorijumu, .c datoteke u ./sources
 CC = gcc
 
 FLAGS = -Wall -Wextra -ansi
 CFLAGS = $(FLAGS) -O3
+HDIR = ./headers
 
 LINK = -lGL -lGLU -lglut -lm
 
-## Genericko pravilo za kompilaciju objektnih datoteka
-%.o: %.c
+## Opste pravilo za kompilaciju objektnih datoteka
+%.o: sources/%.c
 	@echo ============= build [$^] =============
-	$(CC) $(CFLAGS) $< -c -o $@ 
+	$(CC) $(CFLAGS) $< -c -o $@ -I $(HDIR)
 
 	@echo [OK] --- [$@]
 	@echo
 
 ## Sve .o datoteka koje se koriste pri stvaranju programa
-OBJ = main.o
+# Izvuci listu svih izvrsnih kodova i odredi odgovarajuce listu objektnih
+# datoteka
+SRC = $(wildcard sources/*.c)
+OBJ = $(SRC:sources/%.c=%.o)
 
+## Konacno linkovanje .o datoteka u izvrsni kod
 maraton: $(OBJ)
-	@echo ============= compile [$@] ===========
-	gcc $(CFLAGS) $(OBJ) -o maraton $(LINK) 
-	@make -s sweep
+	@echo ============= compile [$@] =============
+	gcc $(CFLAGS) $(OBJ) -o maraton $(LINK)
+#	@make -s sweep
 
 	@echo [OK] --- [$@]
 	@echo
 
 ### Pomocne komande
-.PHONY: clean sweep main
+.PHONY: clean sweep run
 
 clean:
 	@rm -f *.o *~ *#
@@ -34,5 +43,21 @@ clean:
 sweep:
 	@rm -f *.o
 
-# Upotreba za ciscenje direktorijuma:
+run:
+	@echo
+	@echo ------------------ BUILDING ------------------
+	@echo
+	@make maraton
+
+# Hoce li se ovo pokrenuti ako kompilacija nije uspesna?
+	@echo
+	@echo ------------------ RUNNING ------------------
+	@echo
+	./maraton
+
+### Upotreba komadni
+## Komande se pokrecu iz osnovnog direktorijuma projekta:
 #$ make clean
+## Ocisti direktorijum:
+#$ make run
+## Kompiliraj, ako je uspesno pokreni

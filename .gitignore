@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+maraton
+
+# Autosaved files
+*~
+
+# Backup files
+*#
+
+#
+todo.org

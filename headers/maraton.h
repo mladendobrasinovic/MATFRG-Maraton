@@ -1,11 +1,18 @@
-#ifndef _MARATON_
+#ifndef _MARATON
+#define _MARATON
 
+#include <string.h>
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
-#include <GL/glut.h>
+#include <GL/freeglut.h>
+
+#include "timer.h"
+#include "state.h"
+#include "scene.h"
 
 #define UNUSED(arg) ((void)arg)
 #define UNUSED_2(arg1, arg2) (UNUSED(arg1), UNUSED(arg2))
