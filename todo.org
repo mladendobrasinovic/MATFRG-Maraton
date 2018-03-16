@@ -1,2 +1,0 @@
-* TODO Osvetljenje
-- podesi OpenGL svetlo (staticno za kameru)
