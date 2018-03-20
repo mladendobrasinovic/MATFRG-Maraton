@@ -63,6 +63,9 @@ void special(int key, int x, int y)
     case GLUT_KEY_RIGHT:
 	curr_tick.right = true;
 	break;
+    case GLUT_KEY_F11:
+	glutFullScreenToggle();
+	break;
     default:
 	break;
     }
@@ -71,7 +74,7 @@ void special(int key, int x, int y)
 void reshape(int new_width, int new_height)
 {
     float near = 0.0, far = 1000;
-    double clip = 3.14 * 2;
+    double clip = M_PI * 2;
     double ah, aw;
     
     /* Funkcija se poziva pri promeni i _stvaranju_ prozora */
@@ -117,11 +120,13 @@ int main(int argc, char* argv[])
     glutTimerFunc(TIMER_INTERVAL, timer, TIMER_ID);
     glutReshapeFunc(reshape);
 
-    glClearColor(0.13, 0.13, 0.13, 0);
+    /* glClearColor(1.0, 0.858823529412, 0.34509803922, 0); */
+    glClearColor(0.11, 0.11, 0.13, 0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
 
     /* Postavi staticki deo scene */
+    init_state();
     set_scene();
 
     glutMainLoop();

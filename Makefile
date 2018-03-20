@@ -49,7 +49,7 @@ run:
 	@echo
 	@make maraton
 
-# Hoce li se ovo pokrenuti ako kompilacija nije uspesna?
+# Nece se pokrenuti ako kompilacija nije uspesna
 	@echo
 	@echo ------------------ RUNNING ------------------
 	@echo

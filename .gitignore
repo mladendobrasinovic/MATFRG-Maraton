@@ -38,5 +38,5 @@ maraton
 # Backup files
 *#
 
-#
-todo.org
+# Agenda files
+*.org

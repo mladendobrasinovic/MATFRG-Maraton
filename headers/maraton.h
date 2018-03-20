@@ -13,6 +13,11 @@
 #include "timer.h"
 #include "state.h"
 #include "scene.h"
+#include "track.h"
+
+#define M_PI  3.14159265359
+#define M_SQRT_2 1.41421356237
+
 
 #define UNUSED(arg) ((void)arg)
 #define UNUSED_2(arg1, arg2) (UNUSED(arg1), UNUSED(arg2))
