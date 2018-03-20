@@ -8,10 +8,12 @@ void init_seg(segment_t seg)
     {
 	    for(j = 0; j < TRK_WIDTH ; j++)
 	    {
-		if(i != 0 || j % 2 != 0) 
-		    seg[i][j] = FLD_O;
+		/* XOR bitova na polju jedinice (parnosti) predstavlja
+		 * funkciju boje sahovnice */
+		if((j % 2 == 1) ^ (i % 2 == 0))
+		    seg[i][j] = FLD_W;
 		else
-		    seg[i][j] = FLD_X;
+		    seg[i][j] = FLD_G;
 	    }
     }
 }

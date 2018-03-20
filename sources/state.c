@@ -1,12 +1,14 @@
 #include "maraton.h"
 
-/* Inicijalne vrednosti promenljivih stanja */
-struct tick_key curr_tick = {false, false, false, false};
-float avatar_shift = 2.0;
+struct tick_key curr_tick;
+float avatar_shift;
 
 segment_t curr_seg;
 
 void init_state()
 {
+   /* Inicijalizuj vrednosti promenljivih stanja */
     init_seg(curr_seg);
+    curr_tick = null_tick;
+    avatar_shift = 1;
 }

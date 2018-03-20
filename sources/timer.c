@@ -24,4 +24,6 @@ void timer(int timer_val)
 
     /* Ponovo postavljamo _callback_ za stopericu */
     glutTimerFunc(TIMER_INTERVAL, timer, TIMER_ID);
+    /* GLUT-u se mora reci da je doslo do promene stanja igre */
+    glutPostRedisplay();
 }
