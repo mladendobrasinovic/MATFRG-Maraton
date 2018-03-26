@@ -14,10 +14,12 @@
 #include "state.h"
 #include "scene.h"
 #include "track.h"
+#include "game.h"
 
 #define M_PI  3.14159265359
 #define M_SQRT_2 1.41421356237
 
+extern GLfloat field_w, field_h;
 
 #define UNUSED(arg) ((void)arg)
 #define UNUSED_2(arg1, arg2) (UNUSED(arg1), UNUSED(arg2))

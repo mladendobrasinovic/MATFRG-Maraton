@@ -2,11 +2,13 @@
 #ifndef _STATE
 #define _STATE
 
+#include <GL/freeglut.h>
 #include "timer.h"
 #include "track.h"
 
 extern struct tick_key curr_tick;
-extern float avatar_shift;
+extern GLfloat avatar_x_shift, avatar_z_shift;
+
 extern segment_t curr_seg;
 
 void init_state();

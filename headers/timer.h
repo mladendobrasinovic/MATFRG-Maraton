@@ -5,8 +5,11 @@
 
 #define TIMER_ID 13		/* Identifikuje glavnu stopericu funkciji
 				 * timer() */
-#define TIMER_INTERVAL 32	/* Vreme u milisekundama izmedju otkucaja,
-				 * ekvivalentno 1000/25 = 31.25 */
+#define SEC_INTERVAL 1000
+#define TICK_RATE 50
+/* Vreme u milisekundama izmedju otkucaja (1000/50 = 20) */
+#define TIMER_INTERVAL (SEC_INTERVAL / TICK_RATE)
+
 
 void timer(int);
 

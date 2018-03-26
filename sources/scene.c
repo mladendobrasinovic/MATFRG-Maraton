@@ -1,8 +1,7 @@
 #include "maraton.h"
 
-GLfloat avatar_h = 1, field_h = 0.3; /* Visine avatara i polja staze (po
-				      * Y-koordinati) */
-GLfloat field_w = M_SQRT_2;	     /* Sirina polja */
+GLfloat avatar_h = 1;			   /* Visina avatara */
+GLfloat field_w = M_SQRT_2, field_h = 0.3; /* Sirina i visina polja */
 
 void draw_field(enum field fld)
 {
@@ -32,8 +31,11 @@ void draw_avatar()
     
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material_base);
     glShadeModel(GL_SMOOTH);
-    
+
+    glPushMatrix();
+    glTranslatef(avatar_x_shift * field_w, 0, 0);
     glutSolidCube(1.00);
+    glPopMatrix();
 }
 
 void draw_track()
@@ -48,7 +50,7 @@ void draw_track()
     glPushMatrix();
     glTranslatef(track_x_offset,
 		 track_y_offset,
-		 avatar_shift * field_w);
+		 avatar_z_shift * field_w);
 
     for(i = 0; i < SEG_LENGTH; i++)
     {
@@ -85,7 +87,7 @@ void set_scene()
     gluLookAt(dist, dist, dist_z,	/* Lokacija kamere, x == y == z */
     	      0, 0, z_shift,		/* Tacka ka kojoj je kamera okrenuta */
     	      0, 1, 0);		        /* Y osu gledamo kao na uspravnu */
-
+    
     /* Postavi staticko svetlo, ovo radimo sa postavljenom GL_MODELVIEW
      * matricom */
     glLightfv(GL_LIGHT0, GL_POSITION, directional_position);
