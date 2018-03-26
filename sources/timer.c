@@ -6,7 +6,7 @@ anim_t animate = NULL;
 
 void avatar_update()
 {
-    avatar_z_shift += tick_scale(3.0);
+    avatar_z_shift += tick_scale(5.0);
 
     /* Ako je animacija u toku, izvrsi je, i prekini ako je potrebno */
     if(animate != NULL && animate())
@@ -26,7 +26,7 @@ void timer(int timer_val)
     if(tick.exit)		/* Doziveli smo da korisnik prekine program! */
 	exit(EXIT_SUCCESS);
 
-    if(animate == NULL)
+    if(game_running && animate == NULL)
     {
 	/* Ako animacija nije u toku */
 
@@ -42,6 +42,15 @@ void timer(int timer_val)
 	    animate = start_side_move(MOVE_RIGHT);
 	    printf("DESNO!\n");
 	}
+    }
+    
+    if(game_running && !collide_track())
+    {
+	printf("GAME OVER: [%d, %d]\n",
+	       (int)roundf(avatar_x_shift),
+	       (int)roundf(avatar_z_shift));
+	animate = start_drop();
+	game_running = false;
     }
 
     avatar_update();

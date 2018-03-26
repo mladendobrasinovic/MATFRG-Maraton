@@ -1,8 +1,5 @@
 #include "maraton.h"
 
-GLfloat avatar_h = 1;			   /* Visina avatara */
-GLfloat field_w = M_SQRT_2, field_h = 0.3; /* Sirina i visina polja */
-
 void draw_field(enum field fld)
 {
     GLfloat white_base[] = {.99, .99, .99, 1};
@@ -33,7 +30,7 @@ void draw_avatar()
     glShadeModel(GL_SMOOTH);
 
     glPushMatrix();
-    glTranslatef(avatar_x_shift * field_w, 0, 0);
+    glTranslatef(avatar_x_shift * field_w, avatar_y_shift, 0);
     glutSolidCube(1.00);
     glPopMatrix();
 }

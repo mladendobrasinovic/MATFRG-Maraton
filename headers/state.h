@@ -7,7 +7,8 @@
 #include "track.h"
 
 extern struct tick_key curr_tick;
-extern GLfloat avatar_x_shift, avatar_z_shift;
+extern GLfloat avatar_x_shift, avatar_z_shift, avatar_y_shift;
+extern bool game_running;
 
 extern segment_t curr_seg;
 

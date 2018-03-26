@@ -11,7 +11,7 @@ enum field
 
 typedef enum field segment_t[SEG_LENGTH][TRK_WIDTH];
 
-void init_seg(segment_t);
 void empty_seg(segment_t);
+void init_seg(segment_t);
 
 #endif

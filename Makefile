@@ -5,7 +5,7 @@
 ## direktorijumu, .c datoteke u ./sources
 CC = gcc
 
-FLAGS = -Wall -Wextra -ansi
+FLAGS = -Wall -Wextra -ansi -std=c99
 CFLAGS = $(FLAGS) -O3
 HDIR = ./headers
 

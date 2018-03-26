@@ -19,6 +19,7 @@
 #define M_PI  3.14159265359
 #define M_SQRT_2 1.41421356237
 
+extern GLfloat avatar_h;
 extern GLfloat field_w, field_h;
 
 #define UNUSED(arg) ((void)arg)
