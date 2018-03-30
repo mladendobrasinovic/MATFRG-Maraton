@@ -30,7 +30,7 @@ void draw_avatar()
     glShadeModel(GL_SMOOTH);
 
     glPushMatrix();
-    glTranslatef(avatar_x_shift * field_w, avatar_y_shift, 0);
+    glTranslatef(avatar.x * field_w, avatar.y * field_w, 0);
     glutSolidCube(1.00);
     glPopMatrix();
 }
@@ -47,7 +47,7 @@ void draw_track()
     glPushMatrix();
     glTranslatef(track_x_offset,
 		 track_y_offset,
-		 avatar_z_shift * field_w);
+		 avatar.z * field_w);
 
     for(i = 0; i < SEG_LENGTH; i++)
     {
@@ -74,15 +74,15 @@ void set_scene()
     GLfloat ambient_light[] = {.20, .21, .33, 1};
 
     GLdouble dist = 3.0;
-    GLdouble z_shift = -(2 * M_SQRT_2);
-    GLdouble dist_z = dist + z_shift;
+    GLdouble z = -(2 * M_SQRT_2);
+    GLdouble dist_z = dist + z;
 
     /* Postavi matricu pogleda i modela, koje zajedno transformisu svet u nas
      * koordinatni sistem, u odnosu na kameru */
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(dist, dist, dist_z,	/* Lokacija kamere, x == y == z */
-    	      0, 0, z_shift,		/* Tacka ka kojoj je kamera okrenuta */
+    	      0, 0, z,		/* Tacka ka kojoj je kamera okrenuta */
     	      0, 1, 0);		        /* Y osu gledamo kao na uspravnu */
     
     /* Postavi staticko svetlo, ovo radimo sa postavljenom GL_MODELVIEW

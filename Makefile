@@ -7,6 +7,7 @@ CC = gcc
 
 FLAGS = -Wall -Wextra -ansi -std=c99
 CFLAGS = $(FLAGS) -O3
+CDBGFLAGS = $(FLAGS) -g -Og
 HDIR = ./headers
 
 LINK = -lGL -lGLU -lglut -lm
@@ -19,17 +20,33 @@ LINK = -lGL -lGLU -lglut -lm
 	@echo [OK] --- [$@]
 	@echo
 
+# Pravilo za kompilaciju objektnih fajlova za debagovanje
+%_g.o: sources/%.c
+	@echo ============= build [$^] =============
+	$(CC) $(CDBGFLAGS) $< -c -o $@ -I $(HDIR)
+
+	@echo [OK] --- [$@]
+	@echo
+
+
 ## Sve .o datoteka koje se koriste pri stvaranju programa
 # Izvuci listu svih izvrsnih kodova i odredi odgovarajuce listu objektnih
 # datoteka
 SRC = $(wildcard sources/*.c)
 OBJ = $(SRC:sources/%.c=%.o)
+GOBJ = $(SRC:sources/%.c=%_g.o)
 
 ## Konacno linkovanje .o datoteka u izvrsni kod
 maraton: $(OBJ)
 	@echo ============= compile [$@] =============
-	gcc $(CFLAGS) $(OBJ) -o maraton $(LINK)
-#	@make -s sweep
+	gcc $(CFLAGS) $^ -o maraton $(LINK)
+
+	@echo [OK] --- [$@]
+	@echo
+
+maraton-dbg: $(GOBJ)
+	@echo ============= compile [$@] =============
+	gcc $(CDBGFLAGS) $^ -o maraton-dbg $(LINK)
 
 	@echo [OK] --- [$@]
 	@echo

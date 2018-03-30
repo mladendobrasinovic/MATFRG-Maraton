@@ -6,7 +6,7 @@
 
 enum field
 {
-    FLD_W, FLD_G, FLD_X
+    FLD_X = 0, FLD_W, FLD_G
 };
 
 typedef enum field segment_t[SEG_LENGTH][TRK_WIDTH];

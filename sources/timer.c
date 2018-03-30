@@ -2,17 +2,6 @@
 
 struct tick_key null_tick = {.left = false, .right = false,
 			     .jump = false, .exit = false};
-anim_t animate = NULL;
-
-void avatar_update()
-{
-    avatar_z_shift += tick_scale(5.0);
-
-    /* Ako je animacija u toku, izvrsi je, i prekini ako je potrebno */
-    if(animate != NULL && animate())
-	animate = NULL;
-}
-
 
 void timer(int timer_val)
 {
@@ -26,31 +15,25 @@ void timer(int timer_val)
     if(tick.exit)		/* Doziveli smo da korisnik prekine program! */
 	exit(EXIT_SUCCESS);
 
-    if(game_running && animate == NULL)
+    /* Obrada ulaza */
+    if(game_running && avatar.anim == NULL)
     {
 	/* Ako animacija nije u toku */
-
 	if(tick.jump)
+	{
 	    printf("HOP!\n");
+	    avatar.anim = start_jump();
+	}
 	else if(tick.left)
 	{
-	    animate = start_side_move(MOVE_LEFT);
+	    avatar.anim = start_side_move(MOVE_LEFT);
 	    printf("LEVO!\n");
 	}
 	if(tick.right)
 	{
-	    animate = start_side_move(MOVE_RIGHT);
+	    avatar.anim = start_side_move(MOVE_RIGHT);
 	    printf("DESNO!\n");
 	}
-    }
-    
-    if(game_running && !collide_track())
-    {
-	printf("GAME OVER: [%d, %d]\n",
-	       (int)roundf(avatar_x_shift),
-	       (int)roundf(avatar_z_shift));
-	animate = start_drop();
-	game_running = false;
     }
 
     avatar_update();
