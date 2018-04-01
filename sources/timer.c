@@ -10,9 +10,18 @@ void sync_avatar_track()
     if(avatar.z >= seg_length)
     {
 	/* Rotiraj ciklicne segmente staze, repozicioniraj avatar */
-	printf("spin\n");
 	avatar.z = avatar.z - seg_length;
 	cycle_track();
+    }
+}
+
+void update_time_score()
+{
+    if(++score_timer == TICK_RATE / 4)
+	/* Otkucalo je cetvrt sekunde, manje-vise */
+    {
+	score++;
+	score_timer = 0;
     }
 }
 
@@ -52,6 +61,10 @@ void timer(int timer_val)
     /* Napreduj poziciju avatara kroz stazu */
     avatar_update();
     sync_avatar_track();
+
+    /* Dodaj igracu bodove za proteklo vreme */
+    if(game_running)
+	update_time_score();
     
     /* Postavi null_tick za sledeci otkucaja */
     curr_tick = null_tick;

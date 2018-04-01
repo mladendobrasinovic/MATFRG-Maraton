@@ -51,7 +51,7 @@ void special(int key, int x, int y)
 void reshape(int width, int height)
 /* Funkcija se poziva pri promeni i _stvaranju_ prozora */
 {
-    GLdouble near = -20, far = 20;
+    GLdouble near = -16, far = 16;
     GLdouble clip = M_PI * 2;
     GLdouble ah, aw;
 
@@ -77,11 +77,13 @@ void display(void)
 {
     /* Inicijalizuj _buffer_ na cistu pozadinu */
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    
+
     /* Iscrtaj dinamicki deo scene */
     glMatrixMode(GL_MODELVIEW);
     draw_scene();
 
+    display_running();
+        
     /* Koristimo dvostruko baferisanje, zameni aktivni bafer i onaj u kome smo
      * renderovali scenu */
     glutSwapBuffers();
@@ -115,8 +117,10 @@ int main(int argc, char* argv[])
     glEnable(GL_NORMALIZE);
 
     /* Postavi staticki deo scene */
-    init_state();
     set_scene();
+
+    /* Inicijalizuj globalno stanje */
+    init_state();
 
     glutMainLoop();
     return EXIT_FAILURE;

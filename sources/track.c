@@ -38,7 +38,7 @@ void init_seg(segment_t seg)
 	}
 }
 
-void set_segs()
+void set_seg_ptrs()
 {
     prev_seg = &seg_pool[(seg_ind) % 3];
     curr_seg = &seg_pool[(seg_ind + 1) % 3];
@@ -54,7 +54,7 @@ void init_track()
 
     /* Postavi pokazivace od prvog indeksa */
     seg_ind = 0;
-    set_segs();
+    set_seg_ptrs();
 }
 
 void cycle_track()
@@ -62,7 +62,7 @@ void cycle_track()
 {
     /* Rotiraj indeks ciklicnog niza */
     seg_ind = (seg_ind + 1) % 3;
-    set_segs();
+    set_seg_ptrs();
 
     /* Inicijalizuj sledeci segment, zanemarujuci trenutnu vrednost */
     init_seg(*next_seg);

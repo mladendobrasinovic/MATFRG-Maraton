@@ -1,6 +1,9 @@
 #ifndef _MARATON
 #define _MARATON
 
+#define GL_GLEXT_PROTOTYPES
+#define _ISOC99_SOURCE
+
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
@@ -15,9 +18,10 @@
 #include "scene.h"
 #include "track.h"
 #include "game.h"
+#include "display.h"
 
 #define M_PI  3.14159265359
-#define M_SQRT_2 1.41421356237
+#define M_SQRT2 1.41421356237
 #define G_CONST 9.8
 
 #define UNUSED(arg) ((void)arg)

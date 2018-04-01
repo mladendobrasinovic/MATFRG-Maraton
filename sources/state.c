@@ -2,9 +2,11 @@
 
 GLfloat avatar_h = 1;			   /* Visina polja */
 GLfloat slide_v = 4.0;
-GLfloat field_w = M_SQRT_2, field_h = 0.3; /* Sirina i visina polja */
+GLfloat field_w = M_SQRT2, field_h = 0.3; /* Sirina i visina polja */
 
 bool game_running;
+unsigned long long score;
+int score_timer;
 
 struct tick_key curr_tick;
 segment_t *curr_seg, *prev_seg, *next_seg;
@@ -33,4 +35,7 @@ void init_state()
 
     /* Jednostavna promenljiva stanja igre */
     game_running = true;
+
+    score = 0;
+    score_timer = 0;
 }

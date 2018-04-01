@@ -24,6 +24,9 @@ typedef struct
 } avatar_t;
 
 extern bool game_running;
+extern unsigned long long score;
+extern int score_timer;
+
 extern struct tick_key curr_tick;
 extern avatar_t avatar;
 extern segment_t *curr_seg, *prev_seg, *next_seg;

@@ -89,7 +89,7 @@ void set_scene()
     GLfloat ambient_light[] = {.20, .21, .35, 1};
 
     GLdouble dist = 3.0;
-    GLdouble z = -(2 * M_SQRT_2);
+    GLdouble z = -(2 * M_SQRT2);
     GLdouble dist_z = dist + z;
 
     /* Postavi matricu pogleda i modela, koje zajedno transformisu svet u nas
@@ -97,9 +97,9 @@ void set_scene()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(dist, dist, dist_z,	/* Lokacija kamere, x == y == z */
-    	      0, 0, z,		/* Tacka ka kojoj je kamera okrenuta */
+    	      0, 0, z,		        /* Tacka ka kojoj je kamera okrenuta */
     	      0, 1, 0);		        /* Y osu gledamo kao na uspravnu */
-    
+
     /* Postavi staticko svetlo, ovo radimo sa postavljenom GL_MODELVIEW
      * matricom */
     glLightfv(GL_LIGHT0, GL_POSITION, directional_position);
