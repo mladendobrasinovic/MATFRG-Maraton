@@ -97,10 +97,17 @@ bool collide_field(int i, int j)
     if(j < 0 || j >= 5)
 	/* Polje je van sirine staze */
 	return false;
-    
+
+    /* Proveravamo da li ima polja samo na trenutnom i sledecem, za prosli
+     * smatramo da nema potrebe*/
     if(i >= 0 && i < SEG_LENGTH)
     {
-	if(curr_seg[i][j] != FLD_X)
+	if((*curr_seg)[i][j] != FLD_X)
+	    return true;
+    }
+    else if(i >= SEG_LENGTH)
+    {
+	if((*next_seg)[i - SEG_LENGTH][j] != FLD_X)
 	    return true;
     }
 

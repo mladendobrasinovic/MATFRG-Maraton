@@ -7,19 +7,21 @@ GLfloat field_w = M_SQRT_2, field_h = 0.3; /* Sirina i visina polja */
 bool game_running;
 
 struct tick_key curr_tick;
-segment_t curr_seg;
+segment_t *curr_seg, *prev_seg, *next_seg;
 avatar_t avatar;
 
 void init_state()
 {
     /* Inicijalizuj vrednosti promenljivih stanja */
-    init_seg(curr_seg);
+    init_track();
+    
     curr_tick = null_tick;
     
     /* Inicijalizuj poziciju avatara (centralni red, druga kolona, nivo poda) */
     avatar.x = 0;
     avatar.z = 1;
     avatar.y = 0;
+    
     /* Inicijalizuj brzinu avatara */
     avatar.vz = 4.0;
     avatar.vx = 0;

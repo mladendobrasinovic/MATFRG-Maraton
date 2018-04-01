@@ -35,25 +35,19 @@ void draw_avatar()
     glPopMatrix();
 }
 
-void draw_track()
+void draw_seg(segment_t *seg_p, int offset)
 {
-    /* Zelimo da avatar stoji ravno nad stazom */
-    GLfloat track_y_offset = -(avatar_h + field_h) / 2;
-    /* Crtanje pocinje od prvog polja, zelimo da je koordinatni pocetak iznad
-     * treceg */
-    GLfloat track_x_offset = -(2 * field_w);
+    GLfloat seg_z_offset = -(field_w * (SEG_LENGTH * offset));
     int i, j;
 
     glPushMatrix();
-    glTranslatef(track_x_offset,
-		 track_y_offset,
-		 avatar.z * field_w);
+    glTranslatef(0, 0, seg_z_offset);
 
     for(i = 0; i < SEG_LENGTH; i++)
     {
 	for(j = 0; j < TRK_WIDTH; j++)
 	{
-	    enum field curr_field = curr_seg[i][j];
+	    enum field curr_field = (*seg_p)[i][j];
 	    
 	    if(curr_field == FLD_X) /* Nema polja na ovoj poziciji */
 		continue;
@@ -67,11 +61,32 @@ void draw_track()
     glPopMatrix();
 }
 
+void draw_track()
+{
+    /* Zelimo da avatar stoji ravno nad stazom */
+    GLfloat track_y_offset = -(avatar_h + field_h) / 2;
+    /* Crtanje pocinje od prvog polja, zelimo da je koordinatni pocetak iznad
+     * treceg */
+    GLfloat track_x_offset = -(2 * field_w);
+
+    glPushMatrix();
+    glTranslatef(track_x_offset,
+		 track_y_offset,
+		 avatar.z * field_w);
+
+    /* Crtaj zasebno segmente staze */
+    draw_seg(prev_seg, OFFSET_PREV);
+    draw_seg(curr_seg, OFFSET_CURR);
+    draw_seg(next_seg, OFFSET_NEXT);
+    
+    glPopMatrix();
+}
+
 void set_scene()
 {
     GLfloat directional_position[] = {2.4, 4.5, 1.6, 0};
-    GLfloat directional_diffuse[] = {.99 , .97, .84, 1};
-    GLfloat ambient_light[] = {.20, .21, .33, 1};
+    GLfloat directional_diffuse[] = {.99 , .97, .83, 1};
+    GLfloat ambient_light[] = {.20, .21, .35, 1};
 
     GLdouble dist = 3.0;
     GLdouble z = -(2 * M_SQRT_2);

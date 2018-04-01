@@ -26,7 +26,7 @@ typedef struct
 extern bool game_running;
 extern struct tick_key curr_tick;
 extern avatar_t avatar;
-extern segment_t curr_seg;
+extern segment_t *curr_seg, *prev_seg, *next_seg;
 
 void init_state();
 
