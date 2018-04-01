@@ -15,8 +15,11 @@ void display_running()
     /* Racunaj poziciju pri gornjem levom cosku prozora */
     w_offset = 5;
     h_offset = glutGet(GLUT_WINDOW_HEIGHT) - 2 - glutBitmapHeight(SCORE_FONT);
-    
-    snprintf(score_buff, CHAR_BUFF_SIZE, "Trenutni bodovi: %lld", score);
+
+    if(game_running)
+	snprintf(score_buff, CHAR_BUFF_SIZE, "Trenutni bodovi: %lld", score);
+    else
+	snprintf(score_buff, CHAR_BUFF_SIZE, "Trenutni bodovi: %lld -- Kraj igre", score);
     
     glColor4f(.6, .9, .2, 0);
     /* Direktno odredjujemo poziciju iscrtavanja */
