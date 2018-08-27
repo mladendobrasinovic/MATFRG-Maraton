@@ -12,6 +12,7 @@
 extern GLfloat avatar_h;
 extern GLfloat slide_v;
 extern GLfloat field_w, field_h;
+extern GLfloat coin_radius, coin_height;
 
 /* Globalne promenljive */
 typedef struct
@@ -26,6 +27,7 @@ typedef struct
 extern bool game_running;
 extern unsigned long long score;
 extern int score_timer;
+extern int coin_timer;
 
 extern struct tick_key curr_tick;
 extern avatar_t avatar;

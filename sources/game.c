@@ -2,12 +2,12 @@
 
 unsigned int move_dur = 250;
 unsigned int jump_dur = 500;	/* Ekvivalentno vremenu za koje kocka predje 2
-				 * polja po z-osi */
+				 * polja po z-osi. */
 GLfloat grav = tick_scale(G_CONST);
 
 /* Parametri animacije */
 GLfloat start, end;
-float t;			/* Ocekujemo da parameter t ide od 0 do 1 */
+float t;			/* Ocekujemo da parameter t ide od 0 do 1. */
 GLfloat vy;
 
 bool move_side(void)
@@ -20,7 +20,7 @@ bool move_side(void)
 	return true;
     }
     
-    /* Animiramo pomeranje nalik funkciji sin na [0, 90] tj. [0. pi/2] */
+    /* Animiramo pomeranje nalik funkciji sin na [0, 90] tj. [0. pi/2]. */
     avatar.x = start + (GLfloat)sin(t * (M_PI / 2)) * diff;
 
     t += interval_scale(move_dur);
@@ -32,7 +32,7 @@ bool jump(void)
     GLfloat y_floor = 0;
     float max_t = (float)jump_dur / SEC_INTERVAL;
     /* Racunamo visinu tako da sinusoidna putanja aproksimira parabolu koja
-       odgovara konstanti gravitacije */
+       odgovara konstanti gravitacije. */
     GLfloat height = (G_CONST * max_t * M_PI) / (2 * avatar.vz);
 
     if(t >= 1.0)
@@ -40,13 +40,13 @@ bool jump(void)
 	avatar.y = y_floor;
 	avatar.in_jump = false;
 
-	/* Postavlji trenutnu brzinu za slucaj da se pad nastavlja (tj. ako
-	 * padne van staze) */
+	/* Postavljamo trenutnu brzinu za slucaj da se pad nastavlja (tj. ako
+	 * padne van staze). */
 	avatar.vy = height * M_PI / max_t;
 	return true;
     }
 
-    /* Animiramo skok kao sinusoidnu funkciju na intervalu [0, pi] */
+    /* Animiramo skok kao sinusoidnu funkciju na intervalu [0, pi]. */
     avatar.y = (GLfloat)sin(t * M_PI) * height;
 
     t += interval_scale(jump_dur);
@@ -58,7 +58,7 @@ bool drop(void)
     avatar.y = avatar.y - tick_scale(avatar.vy);
     avatar.vy = avatar.vy + grav;
     
-    /* Ova animacija ignorise parametar t */
+    /* Ova animacija ignorise parametar t. */
     return false;
 }
 
@@ -83,11 +83,9 @@ anim_t start_jump()
 anim_t start_drop()
 {
     if(!avatar.in_drop)
-	/* Ako je avatar vec u padu ne treba mu menjati brzinu po Y-osi */
-    {
-	/* FIX: Napravi transfer energije iz vz u vy */
-	avatar.vy = avatar.vz * 2; /* Ovako izgleda normalnije */
-    }
+	/* Ako je avatar vec u padu ne treba mu menjati brzinu po Y-osi. */
+	avatar.vy = avatar.vz * 2; /* Ovako izgleda bolje, avatar menja smer
+				    * kada pada sa ivice. */
 
     return drop;
 }
@@ -95,19 +93,19 @@ anim_t start_drop()
 bool collide_field(int i, int j)
 {
     if(j < 0 || j >= 5)
-	/* Polje je van sirine staze */
+	/* Polje je van sirine staze. */
 	return false;
 
     /* Proveravamo da li ima polja samo na trenutnom i sledecem, za prosli
-     * smatramo da nema potrebe*/
+     * smatramo da nema potrebe. */
     if(i >= 0 && i < SEG_LENGTH)
     {
-	if((*curr_seg)[i][j] != FLD_X)
+	if(curr_seg->track[i][j] != FLD_X)
 	    return true;
     }
     else if(i >= SEG_LENGTH)
     {
-	if((*next_seg)[i - SEG_LENGTH][j] != FLD_X)
+	if(next_seg->track[i - SEG_LENGTH][j] != FLD_X)
 	    return true;
     }
 
@@ -115,22 +113,22 @@ bool collide_field(int i, int j)
 }
 
 bool collide_track()
-/* Proverava da li staza podrzava trenutnu poziciju avatara */
+/* Proverava da li staza podrzava trenutnu poziciju avatara. */
 {
     bool it = false, jt = false;
     int i, j, ip, jp;
     GLfloat avatar_dim = (avatar_h / field_w) / 2; /* Sirina avatara u odnosu na
-						    * meru polja */
+						    * meru polja. */
     
-    /* Nadji polje nad kojim se nalazi teziste */
+    /* Nalazimo polje nad kojim se nalazi teziste. */
     i = roundf(avatar.z);
     j = 2 + roundf(avatar.x);
 
-    /* Proveri da li je avatar centriran nad postojecim poljem */
+    /* Proveravamo da li je avatar centriran nad postojecim poljem. */
     if(collide_field(i, j))
 	return true;
 
-    /* Proveri da li avatar stoji na dodatnom kolonom, i odredi je */
+    /* Proveravamo da li avatar stoji na dodatnom kolonom, odredjujemo je. */
     ip = roundf(avatar.z + avatar_dim);
     if(ip != i)
 	it = true;
@@ -141,7 +139,7 @@ bool collide_track()
 	    it = true;
     }
 
-    /* Proveri da li avatar stoji nad dodatnim redom, i odredi ga */
+    /* Proveravamo da li avatar stoji nad dodatnim redom, odredjujemo ga. */
     jp = 2 + roundf(avatar.x + avatar_dim);
     if(jp != j)
 	jt = true;
@@ -152,8 +150,8 @@ bool collide_track()
 	    jt = true;
     }
 
-    /* Proveri da li ima susedno polje nad kojim avatar stoji koje moze da ga
-     * podrzi */
+    /* Proveravamo da li ima susedno polje nad kojim avatar stoji koje moze da
+     * ga podrzi. */
     if(it && collide_field(ip, j))
 	return true;
     if(jt && collide_field(i, jp))
@@ -168,7 +166,7 @@ void avatar_update()
 {
     avatar.z += tick_scale(avatar.vz);
 
-    /* Ako je animacija u toku, izvrsi je, i prekini ako je potrebno */
+    /* Ako je animacija u toku, izvrsi je, i prekini ako je potrebno. */
     if(avatar.anim != NULL && avatar.anim())
 	avatar.anim = NULL;
     
@@ -185,9 +183,15 @@ void avatar_update()
 	}
 	else
 	{
-	    /* Avatar je na stazi */
+	    /* Avatar je na stazi. */
 	    avatar.in_drop = false;
 	}
     }
+}
+
+GLfloat coin_rotation()
+{
+    /* Izrazavamo razlomak celih brojeva float-om (u stepenima!). */
+    return (360 * (GLfloat)(coin_timer)) / (GLfloat)(COIN_BEAT * TICK_RATE);
 }
 
