@@ -95,11 +95,11 @@ int draw_safe(segment_t* seg, int start, int end)
 }
 
 int draw_semi_safe(segment_t* seg, int start, int end)
-/* Postavlja platformu od 3 do 4 polja, moze biti ogranicena na manje. */
+/* Postavlja platformu od 2 do 4 polja, moze biti ogranicena na manje. */
 {
     int i, j;
     
-    end = randrange(start + 3, end);
+    end = randrange(start + 2, end);
 
     for(i = start; i < end; i++)
 	for(j = 0; j < TRK_WIDTH; j++)
@@ -113,11 +113,14 @@ int draw_obstacle(segment_t* seg, int start, int end)
 /* Postavlja prepreku do 2 polja. */
 {
     int i, j;
-    int cutoff = TRK_WIDTH;
+    int cutoff = 0;
     int jstart = 0, jend = 0;
+    int volume, remove = 0;
+    bool flip = false;
 
     end = randrange(start + 1, end);
 
+    /* Racunamo kakvog ce oblika prepreka biti. */
     if(randf(0, 1) < 0.3)
     {
 	/* Zelimo 1 do 4 odsecenih polja. */
@@ -133,9 +136,27 @@ int draw_obstacle(segment_t* seg, int start, int end)
 	}
     }
 
+    /* Racunamo broj polja koji bi mogli smisleno ipak popuniti. */
+    volume = (TRK_WIDTH - cutoff) * (end - start);
+    remove = volume / 3;
+    
     for(i = start; i < end; i++)
-	for(j = jstart; j < jend; j++)
-	    set_field(seg, i, j);
+	for(j = 0; j < TRK_WIDTH; j++)
+	{
+	    /* Omogucavamo da se neka od polja nasumicno popune.*/
+	    if(remove >= 0 && randf(0, 1) < 0.66 * ((float)remove / (float)volume))
+	    {
+		remove--;
+		flip = true;
+	    }
+
+	    /* Predefinisana sigurna zona. */
+	    bool cond = (j >= jstart && j < jend);
+	    if((cond && !flip) || (flip && !cond))
+		set_field(seg, i, j);
+	    
+	    flip = false;
+	}
 
     return end - start;
 }
@@ -180,7 +201,7 @@ void init_seg(segment_t* seg)
 		last_patch = SAFE;
 		break;
 	    }
-	    else if(len >= 3)
+	    else if(len >= 2)
 	    {
 		len = SEG_LENGTH - 2 - i;
 		end = (len >= 4) ? i + 4 : SEG_LENGTH-2;
