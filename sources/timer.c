@@ -47,10 +47,25 @@ void update_animation_timers()
 	(int)(TICK_RATE * COIN_DEATH_BEAT);
 }
 
+void update_state()
+{
+    /* Ponovo postavljamo _callback_ funkciju za stopericu. */
+    glutTimerFunc(TIMER_INTERVAL, timer, TIMER_ID);
+    /* GLUT-u se mora reci da je doslo do promene stanja igre. */
+    glutPostRedisplay();
+}
+
 void timer(int timer_val)
 {
     UNUSED(timer_val);
     struct tick_key tick;
+
+    if(game_paused || game_starting)
+    {
+	/* Nastavljamo sa otkucavanjem glut-a, ali ne napredujemo igru. */
+	update_state();
+	return;
+    }
     
     /* Stanje komandi kopiraj u lokalnu strukturu, nije neophodno da
      * zakljucavamo promenljive. */
@@ -98,9 +113,6 @@ void timer(int timer_val)
 
     /* Napredujemo tajmere animacija. */
     update_animation_timers();
-    
-    /* Ponovo postavljamo _callback_ funkciju za stopericu. */
-    glutTimerFunc(TIMER_INTERVAL, timer, TIMER_ID);
-    /* GLUT-u se mora reci da je doslo do promene stanja igre. */
-    glutPostRedisplay();
+
+    update_state();
 }

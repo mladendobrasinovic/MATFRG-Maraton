@@ -8,7 +8,13 @@ GLfloat field_w = M_SQRT2, field_h = 0.3; /* Sirina i visina polja */
 GLfloat coin_radius = 0.36;
 GLfloat coin_height = 0.42;
 
+/* Nagrada za prelazak distance, veca od novcica. */
+GLfloat bonus_radius = 0.46;
+GLfloat bonus_height = 0.46;    
+
 bool game_running;
+bool game_paused;
+bool game_starting;
 unsigned long long score;
 int score_timer;
 int coin_timer;
@@ -22,8 +28,6 @@ avatar_t avatar;
 void init_state()
 {
     /* Inicijalizuj vrednosti promenljivih stanja */
-    init_track();
-    
     curr_tick = null_tick;
     
     /* Inicijalizuj poziciju avatara (centralni red, druga kolona, nivo poda) */
@@ -42,10 +46,14 @@ void init_state()
 
     /* Jednostavna promenljiva stanja igre */
     game_running = true;
+    game_paused = false;
+    game_starting = true;
 
     score = 0;
     score_timer = 0;
     coin_timer = 0;
     coin_death_timer = 0;
     distance_score = 0;
+
+    init_track();
 }

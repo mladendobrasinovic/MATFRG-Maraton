@@ -15,15 +15,30 @@ void display_running()
     /* Racunaj poziciju pri gornjem levom cosku prozora */
     w_offset = 5;
     h_offset = glutGet(GLUT_WINDOW_HEIGHT) - 2 - glutBitmapHeight(SCORE_FONT);
-
-    if(game_running)
-	snprintf(score_buff, CHAR_BUFF_SIZE, "Predjena razdaljina: %lld\n"
-		 "Trenutni bodovi: %lld", distance_score, score);
+    if (game_starting)
+	snprintf(score_buff, CHAR_BUFF_SIZE,
+		 "Pritisnite bilo koje slovo da biste poceli:\n"
+		 "-------------------------------------------\n"
+		 "Q ili <ESC> -- izadji iz igre.\n"
+		 "P           -- pauziraj igru.\n"
+		 "-------------------------------------------\n"
+		 "<razmak>          -- skoci!\n"
+		 "<leva-strelica>   -- idi levo!\n"
+    		 "<desna-strelica>  -- idi desno!\n"
+		 "-------------------------------------------\n"
+		 "Skupite sto vise bodova i nemojte da padnete.");
+    else if(game_running)
+	snprintf(score_buff, CHAR_BUFF_SIZE, "Predjena razdaljina: %lldm\n"
+		 "Trenutno bodova: %lld", distance_score, score);
+    else if(game_paused)
+	snprintf(score_buff, CHAR_BUFF_SIZE, "Predjena razdaljina: %lldm\n"
+		 "Trenutno bodova: %lld -- Pauzirano", distance_score, score);
     else
-	snprintf(score_buff, CHAR_BUFF_SIZE, "Predjena razdaljina: %lld\n"
-		 "Trenutni bodovi: %lld -- Kraj igre", distance_score, score);
+	snprintf(score_buff, CHAR_BUFF_SIZE, "Predjena razdaljina: %lldm\n"
+		 "Trenutno bodova: %lld -- Kraj\n"
+		 "Pritisnite <R> da biste pokusali ponovo.", distance_score, score);
     
-    glColor4f(.6, .9, .2, 0);
+    glColor4f(.5, .9, .15, 0);
     /* Direktno odredjujemo poziciju iscrtavanja */
     glWindowPos2i(w_offset, h_offset);
     glutBitmapString(SCORE_FONT, (const unsigned char *)score_buff);

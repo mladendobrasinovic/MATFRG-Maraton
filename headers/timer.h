@@ -6,7 +6,7 @@
 #define TIMER_ID 13		/* Identifikuje glavnu stopericu funkciji
 				 * timer() */
 #define SEC_INTERVAL 1000
-#define TICK_RATE 50            /* Zeljeni broj otkucaja igre u sekundi */
+#define TICK_RATE 60            /* Zeljeni broj otkucaja igre u sekundi */
 /* Vreme u milisekundama izmedju otkucaja (1000/50 = 20): */
 #define TIMER_INTERVAL (SEC_INTERVAL / TICK_RATE)
 

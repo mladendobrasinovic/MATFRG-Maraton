@@ -1,6 +1,9 @@
 #ifndef _SCENE
 #define _MARATON
 
+#define SPHERE_SLICES 24
+#define SPHERE_STACKS 36
+
 void draw_scene();
 void set_scene();
 

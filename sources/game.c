@@ -228,6 +228,7 @@ GLfloat coin_scale(int death_mod)
 void pickup_coins()
 {
     int i;
+    bonus_t b = curr_seg->bonus;
         
     for(i = 0; i < curr_seg->len_coins; i++)
     {
@@ -255,6 +256,27 @@ void pickup_coins()
 	    curr_seg->coins[i].death_mod = coin_death_timer;
 	}
     }
+
+    if(b.type != BONUS_NIL && !b.dying &&
+       collide_avatar_sphere(b.x, bonus_height, b.z, bonus_radius))
+    {
+	switch(b.type)
+	{
+	case BONUS_CU:
+	    score += 160;
+	    break;
+	case BONUS_AG:
+	    score += 270;
+	    break;
+	case BONUS_AU:
+	    score += 360;
+	    break;
+	default:
+	    break;
+	}
+	curr_seg->bonus.dying = true;
+	curr_seg->bonus.death_mod = coin_death_timer;
+    }
 }
 
 void object_cleanup()
@@ -262,6 +284,7 @@ void object_cleanup()
  * novcica za ovaj otkucaj. */
 {
     int i;
+    bonus_t b = curr_seg->bonus;
     
     for(i = 0; i < curr_seg->len_coins; i++)
     {
@@ -270,4 +293,7 @@ void object_cleanup()
 	if(c.dying && c.death_mod == coin_death_timer)
 	    curr_seg->coins[i].type = COIN_NIL;
     }
+
+    if(b.dying && b.death_mod == coin_death_timer)
+	curr_seg->bonus.type = BONUS_NIL;
 }

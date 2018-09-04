@@ -1,9 +1,9 @@
 #include "maraton.h"
 
+GLfloat dim_material[] = {.0, .0, .0, 1};
+
 void set_primitive_material(GLfloat *material_base)
 {
-    GLfloat dim_material[] = {.0, .0, .0, 1};
-    
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material_base);
     glMaterialfv(GL_FRONT, GL_SPECULAR, dim_material);
     glMaterialfv(GL_FRONT, GL_SHININESS, dim_material);
@@ -86,6 +86,58 @@ void draw_coin(coin_t coin)
     glPopMatrix();
 }
 
+void draw_bonus(bonus_t bonus)
+{
+    /* Materijali su zasnovani na tabeli sa sledeceg URL-a:
+     * https://docs.unrealengine.com/en-us/Engine/Rendering/Materials/PhysicallyBased */
+    GLfloat copper_base[] = {.955, .637, .538, 1};
+    GLfloat silver_base[] = {.972, .960, .915, 1};
+    GLfloat golden_base[] = {1.00, .766, .336, 1};
+    GLfloat shininess[] = {90, 82, 80, 1};
+    GLfloat *bonus_base = NULL;
+    GLfloat bonus_diffuse[4] = {1, 1, 1, 1};
+    GLfloat bonus_size = 1.0;
+    int i;
+
+    /* Odredjujemo materijal bonusa. */
+    switch(bonus.type)
+    {
+    case BONUS_CU:
+	bonus_base = copper_base;
+	break;
+    case BONUS_AG:
+	bonus_base = silver_base;
+	break;
+    case BONUS_AU:
+	bonus_base = golden_base;
+	break;
+    default:
+	return;
+    }
+
+    if(bonus.dying)
+	bonus_size = coin_scale(bonus.death_mod);
+
+    glPushMatrix();
+    /* Pozicija objekata je u koordinatnom sistemu sa obrnutom z-osom.  */
+    glTranslatef(bonus.x * field_w, bonus_height * field_w,
+		 -(bonus.z * field_w));
+    
+    /* Postavljamo metalni materijal: */
+    glMaterialfv(GL_FRONT, GL_SPECULAR, bonus_base);
+    glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
+
+    for(i = 0; i < 3; i++)
+	bonus_diffuse[i] = bonus_base[i] * 0.84;
+    
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bonus_diffuse);
+    glShadeModel(GL_SMOOTH);
+    
+    glutSolidSphere(bonus_radius * bonus_size, SPHERE_SLICES, SPHERE_STACKS);
+    glPopMatrix();
+    
+}
+
 void draw_seg(segment_t *seg_p, int offset)
 {
     /* Pomeramo stazu skladno sa ocekivanom pozicijom segmenta, offset govori
@@ -114,6 +166,8 @@ void draw_seg(segment_t *seg_p, int offset)
 
     for(i = 0; i < seg_p->len_coins; i++)
 	draw_coin(seg_p->coins[i]);
+
+    draw_bonus(seg_p->bonus);
     
     glPopMatrix();
 }

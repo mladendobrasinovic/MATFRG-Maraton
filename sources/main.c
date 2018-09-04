@@ -11,6 +11,16 @@ void keyboard(unsigned char key, int x, int y)
 {
     UNUSED_2(x, y);
 
+    if(game_starting)
+    {
+	game_starting = false;
+	game_running = true;
+
+	if(key == '')
+	    curr_tick.exit = true;
+	return;
+    }
+    
     switch(key)
     {
     case 'Q':
@@ -18,6 +28,26 @@ void keyboard(unsigned char key, int x, int y)
     case '':
     case '':
 	curr_tick.exit = true;
+	break;
+    case 'P':
+    case 'p':
+    case '':
+	if(game_running)
+	{
+	    game_paused = true;
+	    game_running = false;
+	}
+	else if(game_paused)
+	{
+	    game_paused = false;
+	    game_running = true;
+	}
+	break;
+    case 'r':
+    case 'R':
+    case '':
+	if(!game_running && !game_starting && !game_paused)
+	    init_state();
 	break;
     case ' ':
 	curr_tick.jump = true;
@@ -31,21 +61,21 @@ void special(int key, int x, int y)
 /* Obrada dogadjaja tastature izvan ASCII tabele */
 {
     UNUSED_2(x, y);
-    
-    switch(key)
-    {
-    case GLUT_KEY_LEFT:
-	curr_tick.left = true;
-	break;
-    case GLUT_KEY_RIGHT:
-	curr_tick.right = true;
-	break;
-    case GLUT_KEY_F11:
+
+    if (!game_starting)
+	switch(key)
+	{
+	case GLUT_KEY_LEFT:
+	    curr_tick.left = true;
+	    break;
+	case GLUT_KEY_RIGHT:
+	    curr_tick.right = true;
+	    break;
+	default:
+	    break;
+	}
+    if (key == GLUT_KEY_F11)
 	glutFullScreenToggle();
-	break;
-    default:
-	break;
-    }
 }
 
 void reshape(int width, int height)
@@ -123,5 +153,6 @@ int main(int argc, char* argv[])
     init_state();
 
     glutMainLoop();
+    
     return EXIT_FAILURE;
 }

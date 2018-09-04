@@ -87,7 +87,7 @@ void init_seg(segment_t *seg)
 
     
     /* Postavljanje novcica na segmentu */
-    int total = 60 + binom(34, 0.7);
+    int total = 42 + binom(21, 0.7);
     int fail_limit = COIN_COUNT, fail = 0;
     bool failed;
     
@@ -97,7 +97,7 @@ void init_seg(segment_t *seg)
 	
 	x = randf(-.5, 4.5);
 	/* Pocetni delovi segmenata su rezervisani.. */
-	z = randf(4.0, .5 + (GLfloat)SEG_LENGTH);
+	z = randf(3.5, .5 + (GLfloat)SEG_LENGTH);
 
 	/* Proveravamo da je novcic na stazi. */
 	failed = false;
@@ -142,6 +142,23 @@ void init_seg(segment_t *seg)
 	seg->coins[i].type = rand_coin();
     }
     seg->len_coins = i;
+
+    /* Postavljanje bonus nagrade: */
+    if(level_count == 0)
+    {
+	seg->bonus.type = BONUS_NIL;
+	return;
+    }
+    if(level_count < 3)
+    	seg->bonus.type = BONUS_CU;
+    else if(level_count < 7)
+	seg->bonus.type = BONUS_AG;
+    else
+	seg->bonus.type = BONUS_AU;
+
+    /* Pocetni deo staze nema drugih novcica i nema rupa, ne radimo provere. */
+    seg->bonus.x = randf(-.5, 4.5);
+    seg->bonus.z = randf(-.5, 2.5);
 }
 
 void set_seg_ptrs()
@@ -156,6 +173,7 @@ void init_track()
     /* Postavljamo seme za generator pseudo-slucajnih brojeva, koji se koristi
      * za generaciju staze igre. */
     srand(time(NULL));
+    level_count = 0;
 
     /* Na pocetku igre je iza avatara prazan segment. */
     empty_seg(&seg_pool[0]);
