@@ -88,6 +88,8 @@ void init_seg(segment_t *seg)
     
     /* Postavljanje novcica na segmentu */
     int total = 60 + binom(34, 0.7);
+    int fail_limit = COIN_COUNT, fail = 0;
+    bool failed;
     
     for(i = 0; i < total; i++)
     {
@@ -98,15 +100,45 @@ void init_seg(segment_t *seg)
 	z = randf(4.0, .5 + (GLfloat)SEG_LENGTH);
 
 	/* Proveravamo da je novcic na stazi. */
+	failed = false;
 	if(seg->track[(int)floorf(z + .5)][(int)floorf(x + .5)] == FLD_X)
+	    failed = true;
+
+	/* Proveravamo da li se novcic sudara sa nekim od prethodnih. */
+	for(j = 0; !failed && j < i; j++)
 	{
-	    i--;
-	    continue;
+	    GLfloat dx, dz;
+	    /* Ostavljamo dodatni prostor potcenjujuci blizinu novcica. */
+	    dx = (x - seg->coins[j].x);
+	    dz = (z - seg->coins[j].z);
+
+	    /* FIX: coin_radius je u stvari precnik. */
+	    /* Ako su centri ogranicavajucih sfera na manjoj daljini od zbira
+	     * precnika onda se seku. */
+	    if(SQUARE(dx) + SQUARE(dz) < SQUARE(coin_radius))
+		failed = true;
 	}
+
+	if(failed)
+	{
+	    fail++;
+	    i--;
+
+	    if(fail == fail_limit)
+	    {
+		/* Ogranicavamo broj ponavljanja petlje. */
+		printf("fail\n");
+		break;
+	    }
+	    else
+		continue;
+	}
+	else
+	    fail = 0;
 	
 	seg->coins[i].x = x;
 	seg->coins[i].z = z;
-	
+	seg->coins[i].dying = false;
 	seg->coins[i].type = rand_coin();
     }
     seg->len_coins = i;

@@ -51,6 +51,7 @@ void draw_coin(coin_t coin)
     GLfloat red_base[] = {.87, .34, .32, 1};
     GLfloat blue_base[] = {.45, .44, .87, 1};
     GLfloat *coin_base = NULL;
+    GLfloat coin_size = 1.0;
 
     /* Odredjujemo boju novcica. */
     switch(coin.type)
@@ -64,8 +65,13 @@ void draw_coin(coin_t coin)
     case COIN_BLU:
 	coin_base = blue_base;
 	break;
+    default:
+	return;
     }
-
+    
+    if(coin.dying)
+	coin_size = coin_scale(coin.death_mod);
+    
     glPushMatrix();
     /* Pozicija objekata je u koordinatnom sistemu sa obrnutom z-osom.  */
     glTranslatef(coin.x * field_w, coin_height * field_w,
@@ -74,6 +80,7 @@ void draw_coin(coin_t coin)
     
     set_primitive_material(coin_base);
     /* Skaliramo primitivni oblik jer funkcija ne prima argument velicine.  */
+    glScalef(coin_size, coin_size, coin_size);
     glScalef(coin_radius, coin_radius, coin_radius);
     glutSolidIcosahedron();
     glPopMatrix();

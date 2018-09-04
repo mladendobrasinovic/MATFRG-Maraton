@@ -12,6 +12,8 @@ bool game_running;
 unsigned long long score;
 int score_timer;
 int coin_timer;
+int coin_death_timer;
+unsigned long long distance_score;
 
 struct tick_key curr_tick;
 segment_t *curr_seg, *prev_seg, *next_seg;
@@ -43,4 +45,7 @@ void init_state()
 
     score = 0;
     score_timer = 0;
+    coin_timer = 0;
+    coin_death_timer = 0;
+    distance_score = 0;
 }

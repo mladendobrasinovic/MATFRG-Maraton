@@ -90,6 +90,28 @@ anim_t start_drop()
     return drop;
 }
 
+bool collide_avatar_sphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r)
+{
+    /* Avatarske koordinate blago transformisemo da bi bile uskladjene ostalim
+     * objektima na stazi. */
+    GLfloat ax = avatar.x + 2.0, ay = avatar.y, az = avatar.z;
+    GLfloat dx, dy, dz;
+    GLfloat bbox_limit;
+    
+    /* Bounding-box provera (Kocke su poravnate sa osama). */
+    dx = SQUARE((ax - x) * field_w);
+    dy = SQUARE((ay - y) * field_w);
+    dz = SQUARE((az - z) * field_w);
+    
+    bbox_limit = SQUARE(avatar_h / 2 + r);
+    /* Kvadrat sluzi izjednacavanju znakova. */
+    if(dx > bbox_limit || dy > bbox_limit || dz > bbox_limit)
+	return false;
+
+    return true;
+}
+
+
 bool collide_field(int i, int j)
 {
     if(j < 0 || j >= 5)
@@ -195,3 +217,57 @@ GLfloat coin_rotation()
     return (360 * (GLfloat)(coin_timer)) / (GLfloat)(COIN_BEAT * TICK_RATE);
 }
 
+GLfloat coin_scale(int death_mod)
+{
+    int mod = (death_mod < coin_death_timer) ? coin_death_timer - death_mod :
+	(int)(COIN_DEATH_BEAT * TICK_RATE) - (death_mod - coin_death_timer);
+    
+    return (GLfloat)cosf(((float)mod * (M_PI / 2)) / (COIN_DEATH_BEAT * TICK_RATE));
+}
+
+void pickup_coins()
+{
+    int i;
+        
+    for(i = 0; i < curr_seg->len_coins; i++)
+    {
+	coin_t c = curr_seg->coins[i];
+
+	if(c.type != COIN_NIL && !c.dying
+	   && collide_avatar_sphere(c.x, coin_height, c.z, coin_radius / 2))
+	{
+	    switch(c.type)
+	    {
+	    case COIN_YEL:
+		score += 13;
+		break;
+	    case COIN_RED:
+		score += 21;
+		break;
+	    case COIN_BLU:
+		score += 34;
+		break;
+	    default:
+		break;
+	    }
+	    
+	    curr_seg->coins[i].dying = true;
+	    curr_seg->coins[i].death_mod = coin_death_timer;
+	}
+    }
+}
+
+void object_cleanup()
+/* Uklanja objekte cija je animacija smrti gotova, poziva se pre kolizije
+ * novcica za ovaj otkucaj. */
+{
+    int i;
+    
+    for(i = 0; i < curr_seg->len_coins; i++)
+    {
+	coin_t c = curr_seg->coins[i];
+	
+	if(c.dying && c.death_mod == coin_death_timer)
+	    curr_seg->coins[i].type = COIN_NIL;
+    }
+}

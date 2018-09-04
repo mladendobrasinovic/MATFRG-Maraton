@@ -17,9 +17,11 @@ void display_running()
     h_offset = glutGet(GLUT_WINDOW_HEIGHT) - 2 - glutBitmapHeight(SCORE_FONT);
 
     if(game_running)
-	snprintf(score_buff, CHAR_BUFF_SIZE, "Trenutni bodovi: %lld", score);
+	snprintf(score_buff, CHAR_BUFF_SIZE, "Predjena razdaljina: %lld\n"
+		 "Trenutni bodovi: %lld", distance_score, score);
     else
-	snprintf(score_buff, CHAR_BUFF_SIZE, "Trenutni bodovi: %lld -- Kraj igre", score);
+	snprintf(score_buff, CHAR_BUFF_SIZE, "Predjena razdaljina: %lld\n"
+		 "Trenutni bodovi: %lld -- Kraj igre", distance_score, score);
     
     glColor4f(.6, .9, .2, 0);
     /* Direktno odredjujemo poziciju iscrtavanja */

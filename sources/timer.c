@@ -17,11 +17,23 @@ void sync_avatar_track()
 
 void update_time_score()
 {
+    static int skip = 0;
+
     if(++score_timer == TICK_RATE / 4)
-	/* Otkucalo je cetvrt sekunde, manje-vise. */
+	/* Otkucalo je pola sekunde, manje-vise, za to vreme avatar predje jedno
+	 * polje. */
     {
-	score++;
+	if(skip != 2)
+	    skip++;
+	else
+	{
+	    /* Dodela boda za svaka tri metra. */
+	    score+= 2;
+	    skip = 0;
+	}
+	
 	score_timer = 0;
+	distance_score++;
     }
 }
 
@@ -31,6 +43,8 @@ void update_animation_timers()
      * pocetak. */
     coin_timer = (coin_timer + 1) %
 	(int)(TICK_RATE * COIN_BEAT);
+    coin_death_timer = (coin_death_timer + 1) %
+	(int)(TICK_RATE * COIN_DEATH_BEAT);
 }
 
 void timer(int timer_val)
@@ -70,9 +84,14 @@ void timer(int timer_val)
     avatar_update();
     sync_avatar_track();
 
-    /* Dodajemo igracu bodove za proteklo vreme. */
+    object_cleanup();
     if(game_running)
+    {
+	/* Dodajemo igracu bodove za proteklo vreme. */
 	update_time_score();
+
+	pickup_coins();
+    }
     
     /* Postavi null_tick za sledeci otkucaj. */
     curr_tick = null_tick;

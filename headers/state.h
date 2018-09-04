@@ -26,8 +26,10 @@ typedef struct
 
 extern bool game_running;
 extern unsigned long long score;
+extern unsigned long long distance_score;
 extern int score_timer;
 extern int coin_timer;
+extern int coin_death_timer;
 
 extern struct tick_key curr_tick;
 extern avatar_t avatar;

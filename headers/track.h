@@ -15,13 +15,15 @@ enum field_type
 enum coin_type
 {
     /* Avanturisticke boje */
-    COIN_YEL, COIN_RED, COIN_BLU
+    COIN_YEL, COIN_RED, COIN_BLU, COIN_NIL
 };
 
 typedef struct
 {
     GLfloat x, z;
     enum coin_type type;
+    int death_mod;
+    bool dying;
 } coin_t;
 
 typedef struct
