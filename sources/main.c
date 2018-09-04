@@ -10,19 +10,44 @@ void display(void);
 void keyboard(unsigned char key, int x, int y)
 {
     UNUSED_2(x, y);
-
+    
     if(game_starting)
     {
+	/* U pocetnom stanju: */
 	game_starting = false;
 	game_running = true;
-
+	
 	if(key == '')
 	    curr_tick.exit = true;
+	return;
+    }
+	
+    if(game_paused)
+    {
+	/* U pauziranom stanju: */
+	switch(key)
+	{
+	case 'Q':
+	case 'q':
+	case '':
+	case '':
+	    curr_tick.exit = true;
+	    break;
+	case 'P':
+	case 'p':
+	case '':
+	    game_paused = false;
+	    game_running = true;
+	    break;
+	default:
+	    break;
+	}
 	return;
     }
     
     switch(key)
     {
+	/* U nepauziranom stanju (i zavrsnom): */
     case 'Q':
     case 'q':
     case '':
@@ -32,16 +57,8 @@ void keyboard(unsigned char key, int x, int y)
     case 'P':
     case 'p':
     case '':
-	if(game_running)
-	{
-	    game_paused = true;
-	    game_running = false;
-	}
-	else if(game_paused)
-	{
-	    game_paused = false;
-	    game_running = true;
-	}
+	game_paused = true;
+	game_running = false;
 	break;
     case 'r':
     case 'R':
@@ -62,9 +79,10 @@ void special(int key, int x, int y)
 {
     UNUSED_2(x, y);
 
-    if (!game_starting)
+    if (!game_starting && !game_paused)
 	switch(key)
 	{
+	    /* Ova provera je samo za aktivno stanje. */
 	case GLUT_KEY_LEFT:
 	    curr_tick.left = true;
 	    break;

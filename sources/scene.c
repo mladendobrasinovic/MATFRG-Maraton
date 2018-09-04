@@ -76,7 +76,7 @@ void draw_coin(coin_t coin)
     /* Pozicija objekata je u koordinatnom sistemu sa obrnutom z-osom.  */
     glTranslatef(coin.x * field_w, coin_height * field_w,
 		 -(coin.z * field_w));
-    glRotatef(coin_rotation(), 0, 1, 0);
+    glRotatef(coin_rotation(coin.rot_mod), 0, 1, 0);
     
     set_primitive_material(coin_base);
     /* Skaliramo primitivni oblik jer funkcija ne prima argument velicine.  */
@@ -93,10 +93,13 @@ void draw_bonus(bonus_t bonus)
     GLfloat copper_base[] = {.955, .637, .538, 1};
     GLfloat silver_base[] = {.972, .960, .915, 1};
     GLfloat golden_base[] = {1.00, .766, .336, 1};
-    GLfloat shininess[] = {90, 82, 80, 1};
+    GLfloat shininess[] = {39, 39, 39, 1};
     GLfloat *bonus_base = NULL;
-    GLfloat bonus_diffuse[4] = {1, 1, 1, 1};
+    GLfloat bonus_diff[4] = {1, 1, 1, 1};
+    GLfloat bonus_ambi[4] = {1, 1, 1, 1};
+    GLfloat bonus_spec[4] = {1, 1, 1, 1};
     GLfloat bonus_size = 1.0;
+    GLfloat modifier = .94;
     int i;
 
     /* Odredjujemo materijal bonusa. */
@@ -107,9 +110,11 @@ void draw_bonus(bonus_t bonus)
 	break;
     case BONUS_AG:
 	bonus_base = silver_base;
+	modifier = .43;
 	break;
     case BONUS_AU:
 	bonus_base = golden_base;
+	modifier = .99;
 	break;
     default:
 	return;
@@ -118,20 +123,33 @@ void draw_bonus(bonus_t bonus)
     if(bonus.dying)
 	bonus_size = coin_scale(bonus.death_mod);
 
+    /* Postavljamo metalni materijal: */
+    for(i = 0; i < 3; i++)
+    {
+	/* Da bi metal izgledao uverljvo zelimo da spekularna i difuzna
+	 * refleksija zajedno reflektuju manje svetlosti nego sto je pada na
+	 * objekat, za to moramo podesiti parametre. */
+	bonus_diff[i] = bonus_base[i] * 0.75;
+
+	/* Ublazavamo spekularnu refleksiju u zavisnosti od metala. */
+	bonus_spec[i] = bonus_base[i] * 0.47 * modifier;
+
+	/* Ambijentalno svetlo se ne uracunava u spekularnu boju, zato njemu
+	 * dajemo baznu boju materijala. */
+	bonus_ambi[i] = bonus_base[i];
+    }
+
+    /* Postavljamo svojstva materijala: */
+    glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, bonus_spec);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, bonus_ambi);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, bonus_diff);
+    glShadeModel(GL_SMOOTH);
+
     glPushMatrix();
     /* Pozicija objekata je u koordinatnom sistemu sa obrnutom z-osom.  */
     glTranslatef(bonus.x * field_w, bonus_height * field_w,
 		 -(bonus.z * field_w));
-    
-    /* Postavljamo metalni materijal: */
-    glMaterialfv(GL_FRONT, GL_SPECULAR, bonus_base);
-    glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
-
-    for(i = 0; i < 3; i++)
-	bonus_diffuse[i] = bonus_base[i] * 0.84;
-    
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bonus_diffuse);
-    glShadeModel(GL_SMOOTH);
     
     glutSolidSphere(bonus_radius * bonus_size, SPHERE_SLICES, SPHERE_STACKS);
     glPopMatrix();

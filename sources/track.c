@@ -10,6 +10,11 @@ GLfloat randf(GLfloat start, GLfloat end)
     return start + (GLfloat)((GLdouble)rand() / RAND_MAX) * (end - start);
 }
 
+int randrange(int start, int end)
+{
+    return (int)floorf(randf(start, end));
+}
+
 int binom(int n, float p)
 /* Generise broj iz binomne distribucije ~ B[n, p]. */
 {
@@ -97,7 +102,7 @@ void init_seg(segment_t *seg)
 	
 	x = randf(-.5, 4.5);
 	/* Pocetni delovi segmenata su rezervisani.. */
-	z = randf(3.5, .5 + (GLfloat)SEG_LENGTH);
+	z = randf(3.5, (GLfloat)SEG_LENGTH - .5);
 
 	/* Proveravamo da je novcic na stazi. */
 	failed = false;
@@ -140,6 +145,7 @@ void init_seg(segment_t *seg)
 	seg->coins[i].z = z;
 	seg->coins[i].dying = false;
 	seg->coins[i].type = rand_coin();
+	seg->coins[i].rot_mod = randrange(0, TICK_RATE * COIN_BEAT);
     }
     seg->len_coins = i;
 
@@ -159,6 +165,7 @@ void init_seg(segment_t *seg)
     /* Pocetni deo staze nema drugih novcica i nema rupa, ne radimo provere. */
     seg->bonus.x = randf(-.5, 4.5);
     seg->bonus.z = randf(-.5, 2.5);
+    seg->bonus.dying = false;
 }
 
 void set_seg_ptrs()

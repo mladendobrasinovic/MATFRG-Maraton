@@ -18,7 +18,7 @@ anim_t start_side_move(GLfloat);
 anim_t start_jump();
 anim_t start_drop();
 bool collide_track();
-GLfloat coin_rotation();
+GLfloat coin_rotation(int rot_mod);
 GLfloat coin_scale(int death_mod);
 void pickup_coins();
 void object_cleanup();

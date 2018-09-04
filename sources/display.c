@@ -21,6 +21,7 @@ void display_running()
 		 "-------------------------------------------\n"
 		 "Q ili <ESC> -- izadji iz igre.\n"
 		 "P           -- pauziraj igru.\n"
+		 "<F11>       -- rezim celog ekrana/rezim prozora.\n"
 		 "-------------------------------------------\n"
 		 "<razmak>          -- skoci!\n"
 		 "<leva-strelica>   -- idi levo!\n"

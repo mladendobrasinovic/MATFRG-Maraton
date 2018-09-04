@@ -211,17 +211,29 @@ void avatar_update()
     }
 }
 
-GLfloat coin_rotation()
+int timer_mod(int point, int dur, int t)
+/* Vraca vreme u odnosu na ciklicni tajmer. */
 {
+    /* point je trenutak cije vreme u animaciji merimo (u jednom punom ciklusu). */
+    if(point < t)
+	return t - point;
+    else
+	/* Korekcija za drugi ciklus. */
+	return dur - point + t;
+}
+
+GLfloat coin_rotation(int rot_mod)
+{
+    int mod = timer_mod(rot_mod, (int)(COIN_BEAT * TICK_RATE), coin_timer);
+    
     /* Izrazavamo razlomak celih brojeva float-om (u stepenima!). */
-    return (360 * (GLfloat)(coin_timer)) / (GLfloat)(COIN_BEAT * TICK_RATE);
+    return (360 * (GLfloat)(mod)) / (GLfloat)(COIN_BEAT * TICK_RATE);
 }
 
 GLfloat coin_scale(int death_mod)
 {
-    int mod = (death_mod < coin_death_timer) ? coin_death_timer - death_mod :
-	(int)(COIN_DEATH_BEAT * TICK_RATE) - (death_mod - coin_death_timer);
-    
+    int mod = timer_mod(death_mod, (int)(COIN_DEATH_BEAT * TICK_RATE), coin_death_timer);
+
     return (GLfloat)cosf(((float)mod * (M_PI / 2)) / (COIN_DEATH_BEAT * TICK_RATE));
 }
 
@@ -279,21 +291,29 @@ void pickup_coins()
     }
 }
 
+void coin_cleanup(segment_t* seg)
+{
+    int i;
+    bonus_t b = seg->bonus;
+    
+    for(i = 0; i < seg->len_coins; i++)
+    {
+	coin_t c = seg->coins[i];
+	
+	if(c.dying && c.death_mod == coin_death_timer)
+	    seg->coins[i].type = COIN_NIL;
+    }
+
+    if(b.dying && b.death_mod == coin_death_timer)
+	seg->bonus.type = BONUS_NIL;
+}
+
 void object_cleanup()
 /* Uklanja objekte cija je animacija smrti gotova, poziva se pre kolizije
  * novcica za ovaj otkucaj. */
 {
-    int i;
-    bonus_t b = curr_seg->bonus;
-    
-    for(i = 0; i < curr_seg->len_coins; i++)
-    {
-	coin_t c = curr_seg->coins[i];
-	
-	if(c.dying && c.death_mod == coin_death_timer)
-	    curr_seg->coins[i].type = COIN_NIL;
-    }
-
-    if(b.dying && b.death_mod == coin_death_timer)
-	curr_seg->bonus.type = BONUS_NIL;
+    /* Ovo radimo sa prethodni segment u kome moze biti nestajucih novcica i za
+     * sadasnji. */
+    coin_cleanup(prev_seg);
+    coin_cleanup(curr_seg);
 }

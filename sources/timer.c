@@ -60,6 +60,11 @@ void timer(int timer_val)
     UNUSED(timer_val);
     struct tick_key tick;
 
+    /* Stanje komandi kopiraj u lokalnu strukturu radi pogodnijeg imena. */
+    tick = curr_tick;
+    if(tick.exit)		/* Korisnik je prekinuo program. */
+	exit(EXIT_SUCCESS);
+
     if(game_paused || game_starting)
     {
 	/* Nastavljamo sa otkucavanjem glut-a, ali ne napredujemo igru. */
@@ -67,12 +72,8 @@ void timer(int timer_val)
 	return;
     }
     
-    /* Stanje komandi kopiraj u lokalnu strukturu, nije neophodno da
-     * zakljucavamo promenljive. */
-    tick = curr_tick;
-    
-    if(tick.exit)		/* Doziveli smo da korisnik prekine program! */
-	exit(EXIT_SUCCESS);
+
+
 
     /* Obrada ulaza */
     if(game_running && avatar.anim == NULL)
