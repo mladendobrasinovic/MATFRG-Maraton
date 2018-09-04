@@ -64,7 +64,7 @@ void set_field(segment_t *seg, int i, int j)
 	seg->track[i][j] = FLD_G;
 }
 
-void empty_seg(segment_t *seg)
+void empty_seg(segment_t* seg)
 /* Postavlja sva polja u seg na vrednost FLD_X. */
 {
     /* Poznato je da je FLD_X == 0, postavljamo prazno polje. */
@@ -73,23 +73,131 @@ void empty_seg(segment_t *seg)
     seg->len_coins = 0;
 }
 
-void init_seg(segment_t *seg)
-/* Inicijalizuje segment trake po kojem ce igrac ici. */
+enum patch_type
+{
+    SAFE, EASY, SEMI, HARD
+};
+
+int draw_safe(segment_t* seg, int start, int end)
+/* Postavlja platformu od 5 do 7 polja, moze biti ogranicena na manje. */
 {
     int i, j;
     
+    /* Ocekujemo da end - start pripada 5-7.  */
+    end = randrange(start + 5, end);
+
+    for(i = start; i < end; i++)
+	for(j = 0; j < TRK_WIDTH; j++)
+	    set_field(seg, i, j);
+
+    /* Vracamo broj obradjenih polja. */
+    return end - start;
+}
+
+int draw_semi_safe(segment_t* seg, int start, int end)
+/* Postavlja platformu od 3 do 4 polja, moze biti ogranicena na manje. */
+{
+    int i, j;
+    
+    end = randrange(start + 3, end);
+
+    for(i = start; i < end; i++)
+	for(j = 0; j < TRK_WIDTH; j++)
+	    set_field(seg, i, j);
+
+    return end - start;
+}
+
+
+int draw_obstacle(segment_t* seg, int start, int end)
+/* Postavlja prepreku do 2 polja. */
+{
+    int i, j;
+    int cutoff = TRK_WIDTH;
+    int jstart = 0, jend = 0;
+
+    end = randrange(start + 1, end);
+
+    if(randf(0, 1) < 0.3)
+    {
+	/* Zelimo 1 do 4 odsecenih polja. */
+	cutoff = 2 + binom(2, 0.5);
+	if(randf(0,1) < 0.5)
+	{
+	    jstart = cutoff;
+	    jend = TRK_WIDTH;
+	}
+	else
+	{
+	    jend = TRK_WIDTH - cutoff;
+	}
+    }
+
+    for(i = start; i < end; i++)
+	for(j = jstart; j < jend; j++)
+	    set_field(seg, i, j);
+
+    return end - start;
+}
+
+void init_seg(segment_t* seg)
+/* Inicijalizuje segment trake po kojem ce igrac ici. */
+{
+    int i, j;
+    enum patch_type last_patch = SAFE;
+    
     empty_seg(seg);
 
-    for(i = 0; i < SEG_LENGTH; i++)
-	for(j = 0; j < TRK_WIDTH ; j++)
+    for(i = 0; i < SEG_LENGTH;)
+    {
+	/* Postavljamo sigurnu platformu na pocetku i kraju segmenta, duzu ako je pocetni segment. */
+	if(i < (level_count == 0 ? 6 : 3) || i >= SEG_LENGTH-2)
 	{
-	    /* TEST:  */
-	    if(((i % 13 == 6 || i % 13 == 5) && j < 3) || (i % 13 == 12 && j > 1))
-		continue;
-	    
-	    set_field(seg, i, j);
-	}
+	    for(j = 0; j < TRK_WIDTH ; j++)
+		set_field(seg, i, j);
 
+	    i++;
+	    continue;
+	}
+	
+	int end, len = SEG_LENGTH - 2 - i;
+	switch(last_patch)
+	{
+	case SEMI:
+	case SAFE:
+	    /* Postavljamo prepreku. */
+	    end = (len >= 3) ? i + 3 : SEG_LENGTH-2;
+	    i+= draw_obstacle(seg, i, end);
+	    last_patch = EASY;
+	    break;
+	case EASY:
+	    /* Postavljamo neki od sigurnih elemenata. */
+	    len = SEG_LENGTH - 2 - i;
+	    if(len >= 5 && randf(0, 1) < 0.76)
+	    {
+		end = (len >= 7) ? i + 7 : SEG_LENGTH-2;
+		i+= draw_safe(seg, i, end);
+		last_patch = SAFE;
+		break;
+	    }
+	    else if(len >= 3)
+	    {
+		len = SEG_LENGTH - 2 - i;
+		end = (len >= 4) ? i + 4 : SEG_LENGTH-2;
+		i+= draw_semi_safe(seg, i, end);
+		last_patch = SEMI;
+		break;
+	    }
+	    /* https://developers.redhat.com/blog/2017/03/10/wimplicit-fallthrough-in-gcc-7/ */
+	    __attribute__((fallthrough));
+	default:
+	    /* Ako ne mozemo da nacrtamo zeljeni element crtamo sigurnu platformu. */
+	    for(j = 0; j < TRK_WIDTH; j++)
+		set_field(seg, i, j);
+	    i++;
+	    break;
+	}
+    }
     
     /* Postavljanje novcica na segmentu */
     int total = 42 + binom(21, 0.7);
@@ -101,8 +209,8 @@ void init_seg(segment_t *seg)
 	GLfloat x, z;
 	
 	x = randf(-.5, 4.5);
-	/* Pocetni delovi segmenata su rezervisani.. */
-	z = randf(3.5, (GLfloat)SEG_LENGTH - .5);
+	/* Pocetni i krajni delovi segmenata su rezervisani za sigurnu platformu za bonus. */
+	z = randf(3.5, (GLfloat)SEG_LENGTH - 1.5);
 
 	/* Proveravamo da je novcic na stazi. */
 	failed = false;

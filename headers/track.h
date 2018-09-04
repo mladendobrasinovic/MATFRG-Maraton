@@ -2,7 +2,7 @@
 #define _TRACK
 
 #define TRK_WIDTH 5
-#define SEG_LENGTH 150
+#define SEG_LENGTH 144
 #define SEG_COUNT 3
 
 #define COIN_COUNT 256
