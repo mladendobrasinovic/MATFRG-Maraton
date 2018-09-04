@@ -113,12 +113,14 @@ bool collide_avatar_sphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r)
     int near_counter = 0;
     GLfloat length = avatar_h / 2;
     nearx = neary = nearz = false;
-    
+
+    /* Sada nam treba absolutna udaljenost sfere i kocke po osama. */
     dx = fabs((ax - x) * field_w);
     dy = fabs((ay - y) * field_w);
     dz = fabs((az - z) * field_w);
 
-    /* Proveravamo u kojim odseccima prostora se nalazi centar. */
+    /* Odredjujemo u kojem od odsecaka prostora koje odredjuje kocka se nalazi
+     * centar sfere. */
     if(dx < length)
     {
 	nearx = true;
@@ -134,31 +136,33 @@ bool collide_avatar_sphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r)
 	nearz = true;
 	near_counter++;
     }
-    printf("%d %f %f\n", near_counter, length, dx);
-    /* Ako je sfera je near_counter == 3, onda je centar unutar kocke. */
+
     if(near_counter == 3)
+	/* Ako je sfera je near_counter == 3, onda je centar unutar kocke. */
+	return true;
+
+    if(near_counter == 2)
+	/* Sfera je naspram jedne (nepoznate) strane kocke, ali zbog bounding-box provere
+	 * zakljucujemo da je sfera dovoljno blizu da je dotakne. */
 	return true;
 
     if(near_counter == 1)
     {
-	/* Sfera je naspram ivice kocke, proveravamo da je centar blizi od r */
+	/* Sfera je naspram ivice kocke, racunamo udaljenost od centra sfere do
+	 * kocke. */
 	if(nearx)
 	    return SQUARE(dz - length) + SQUARE(dy - length) < SQUARE(r);
 	if(neary)
 	    return SQUARE(dx - length) + SQUARE(dz - length) < SQUARE(r);
+	/* nearz: */
 	return SQUARE(dx - length) + SQUARE(dz - length) < SQUARE(r);
     }
     
-    if(near_counter == 0)
-	/* Ako je naspram temena kocke, dovoljno je da su centar i teme na manje
-	 * od r udaljenosti. */
-	return SQUARE(dx - length) + SQUARE(dy - length) + SQUARE(dz - length) < SQUARE(r);
-
-    /* Sfera je naspram jedne (nepoznate) strane kocke, ali zbog bounding-box provere
-     * zakljucujemo da je sfera dovoljno blizu da je dotakne. */
-    return true;
+    
+    /* near_counter == 0: Ako je naspram temena kocke, racunamo udaljenost
+     * centra sfere od temena. */
+    return SQUARE(dx - length) + SQUARE(dy - length) + SQUARE(dz - length) < SQUARE(r);
 }
-
 
 bool collide_field(int i, int j)
 	{
