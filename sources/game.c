@@ -108,38 +108,86 @@ bool collide_avatar_sphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r)
     if(dx > bbox_limit || dy > bbox_limit || dz > bbox_limit)
 	return false;
 
+    /* Provera kolizije sa sferom. */
+    bool nearx, neary, nearz;
+    int near_counter = 0;
+    GLfloat length = avatar_h / 2;
+    nearx = neary = nearz = false;
+    
+    dx = fabs((ax - x) * field_w);
+    dy = fabs((ay - y) * field_w);
+    dz = fabs((az - z) * field_w);
+
+    /* Proveravamo u kojim odseccima prostora se nalazi centar. */
+    if(dx < length)
+    {
+	nearx = true;
+	near_counter++;
+    }
+    if(dy < length)
+    {
+	neary = true;
+	near_counter++;
+    }
+    if(dz < length)
+    {
+	nearz = true;
+	near_counter++;
+    }
+    printf("%d %f %f\n", near_counter, length, dx);
+    /* Ako je sfera je near_counter == 3, onda je centar unutar kocke. */
+    if(near_counter == 3)
+	return true;
+
+    if(near_counter == 1)
+    {
+	/* Sfera je naspram ivice kocke, proveravamo da je centar blizi od r */
+	if(nearx)
+	    return SQUARE(dz - length) + SQUARE(dy - length) < SQUARE(r);
+	if(neary)
+	    return SQUARE(dx - length) + SQUARE(dz - length) < SQUARE(r);
+	return SQUARE(dx - length) + SQUARE(dz - length) < SQUARE(r);
+    }
+    
+    if(near_counter == 0)
+	/* Ako je naspram temena kocke, dovoljno je da su centar i teme na manje
+	 * od r udaljenosti. */
+	return SQUARE(dx - length) + SQUARE(dy - length) + SQUARE(dz - length) < SQUARE(r);
+
+    /* Sfera je naspram jedne (nepoznate) strane kocke, ali zbog bounding-box provere
+     * zakljucujemo da je sfera dovoljno blizu da je dotakne. */
     return true;
 }
 
 
 bool collide_field(int i, int j)
-{
-    if(j < 0 || j >= 5)
-	/* Polje je van sirine staze. */
-	return false;
+	{
+	    if(j < 0 || j >= 5)
+		/* Polje je van sirine staze. */
+		return false;
 
-    /* Proveravamo da li ima polja samo na trenutnom i sledecem, za prosli
-     * smatramo da nema potrebe. */
-    if(i >= 0 && i < SEG_LENGTH)
+	    /* Proveravamo da li ima polja samo na trenutnom i sledecem, za prosli
+	     * smatramo da nema potrebe. */
+	    if(i >= 0 && i < SEG_LENGTH)
+	    {
+		if(curr_seg->track[i][j] != FLD_X)
+		    return true;
+	    }
+	    else if(i >= SEG_LENGTH)
+	    {
+		if(next_seg->track[i - SEG_LENGTH][j] != FLD_X)
+		    return true;
+	    }
+
+	    return false;
+	}
+
+    bool collide_track()
+    /* Proverava da li staza podrzava trenutnu poziciju avatara. */
     {
-	if(curr_seg->track[i][j] != FLD_X)
-	    return true;
-    }
-    else if(i >= SEG_LENGTH)
-    {
-	if(next_seg->track[i - SEG_LENGTH][j] != FLD_X)
-	    return true;
-    }
-
-    return false;
-}
-
-bool collide_track()
-/* Proverava da li staza podrzava trenutnu poziciju avatara. */
-{
-    bool it = false, jt = false;
-    int i, j, ip, jp;
-    GLfloat avatar_dim = (avatar_h / field_w) / 2; /* Sirina avatara u odnosu na
+	bool it = false, jt = false;
+	int i, j, ip, jp;
+	GLfloat avatar_dim = (avatar_h / field_w) / 2; /* Sirina avatara u odnosu na
 						    * meru polja. */
     
     /* Nalazimo polje nad kojim se nalazi teziste. */
@@ -223,6 +271,7 @@ int timer_mod(int point, int dur, int t)
 }
 
 GLfloat coin_rotation(int rot_mod)
+/* Odredjuje rotaciju novcica u skladu sa tajmerom. */
 {
     int mod = timer_mod(rot_mod, (int)(COIN_BEAT * TICK_RATE), coin_timer);
     
@@ -231,6 +280,7 @@ GLfloat coin_rotation(int rot_mod)
 }
 
 GLfloat coin_scale(int death_mod)
+/* Odredjuje faktor skaliranja za animaciju nestajanja objekata. */
 {
     int mod = timer_mod(death_mod, (int)(COIN_DEATH_BEAT * TICK_RATE), coin_death_timer);
 
@@ -238,6 +288,7 @@ GLfloat coin_scale(int death_mod)
 }
 
 void pickup_coins()
+/*  */
 {
     int i;
     bonus_t b = curr_seg->bonus;
@@ -292,6 +343,8 @@ void pickup_coins()
 }
 
 void coin_cleanup(segment_t* seg)
+/* Uklanja objekte cija je animacija smrti gotova, poziva se pre kolizije
+ * novcica za ovaj otkucaj. */
 {
     int i;
     bonus_t b = seg->bonus;
@@ -309,8 +362,7 @@ void coin_cleanup(segment_t* seg)
 }
 
 void object_cleanup()
-/* Uklanja objekte cija je animacija smrti gotova, poziva se pre kolizije
- * novcica za ovaj otkucaj. */
+/* Uklanjanje nepostojecih objekata iz evidencije igre. */
 {
     /* Ovo radimo sa prethodni segment u kome moze biti nestajucih novcica i za
      * sadasnji. */
