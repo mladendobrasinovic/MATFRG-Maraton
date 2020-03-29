@@ -2,7 +2,7 @@
 
 GLfloat dim_material[] = {.0, .0, .0, 1};
 
-void set_primitive_material(GLfloat *material_base)
+void set_primitive_material(GLfloat* material_base)
 {
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, material_base);
     glMaterialfv(GL_FRONT, GL_SPECULAR, dim_material);
@@ -36,7 +36,7 @@ void draw_avatar()
     GLfloat avatar_base[] = {.24, .82, .27, 1};
 
     glPushMatrix();
-    /* Pozicija avatara po z-osi je vec uracunata u pomeraj koordinatnog
+    /* Pozicija avatara po z-osi je vec uracunata u pomeraju koordinatnog
      * sistema. */
     glTranslatef(avatar.x * field_w, avatar.y * field_w, 0);
     
@@ -156,7 +156,7 @@ void draw_bonus(bonus_t bonus)
     
 }
 
-void draw_seg(segment_t *seg_p, int offset)
+void draw_seg(segment_t* seg_p, int offset)
 {
     /* Pomeramo stazu skladno sa ocekivanom pozicijom segmenta, offset govori
      * koliko duzina segmenata treba pomeriti trenutni. */
@@ -182,10 +182,14 @@ void draw_seg(segment_t *seg_p, int offset)
 	}
     }
 
+    /* Radimo korekciju za sirinu polja: */
+    glPushMatrix();
+    glTranslatef(0, field_h / 2, 0);
     for(i = 0; i < seg_p->len_coins; i++)
 	draw_coin(seg_p->coins[i]);
 
     draw_bonus(seg_p->bonus);
+    glPopMatrix();
     
     glPopMatrix();
 }
@@ -203,7 +207,7 @@ void draw_track()
 		 track_y_offset,
 		 avatar.z * field_w);
 
-    /* Crtamo zasebno segmente staze */
+    /* Crtamo zasebno segmente staze. */
     draw_seg(prev_seg, OFFSET_PREV);
     draw_seg(curr_seg, OFFSET_CURR);
     draw_seg(next_seg, OFFSET_NEXT);
@@ -222,19 +226,19 @@ void set_scene()
     GLdouble dist_z = dist + z;
 
     /* Postavljamo matricu pogleda i modela, koje zajedno transformisu svet u nas
-     * koordinatni sistem, u odnosu na kameru */
+     * koordinatni sistem, u odnosu na kameru. */
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(dist, dist, dist_z,	/* Lokacija kamere, x == y == z */
     	      0, 0, z,		        /* Tacka ka kojoj je kamera okrenuta */
-    	      0, 1, 0);		        /* Y osu gledamo kao na uspravnu */
+    	      0, 1, 0);		        /* Y osu gledamo kao na uspravnu .*/
 
-    /* Postavi staticko svetlo, ovo radimo sa postavljenom GL_MODELVIEW
-     * matricom */
+    /* Postavljamo staticko svetlo, ovo radimo sa postavljenom GL_MODELVIEW
+     * matricom. */
     glLightfv(GL_LIGHT0, GL_POSITION, directional_position);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, directional_diffuse);
 
-    /* Postavi ambijentalno svetlo */
+    /* Postavljamo ambijentalno svetlo. */
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient_light);
     
     glEnable(GL_LIGHT0);

@@ -4,13 +4,15 @@ GLfloat avatar_h = 1;			   /* Visina polja */
 GLfloat slide_v = 4.0;
 GLfloat field_w = M_SQRT2, field_h = 0.3; /* Sirina i visina polja */
 
-/* Lebdeci novcici, mali u odnosu na igraca. */
+/* HACK: Visine se skaliraju sa sirinom polja (M_SQRT2), u ovoj deklaraciji
+ * moramo koristiti samo konstante. */
+/* Novcici su mali u odnosu na igraca. */
 GLfloat coin_radius = 0.36;
-GLfloat coin_height = 0.42;
+GLfloat coin_height = 0.36 / M_SQRT2;
 
 /* Nagrada za prelazak distance, veca od novcica. */
 GLfloat bonus_radius = 0.46;
-GLfloat bonus_height = 0.46;    
+GLfloat bonus_height = 0.46 / M_SQRT2;    
 
 bool game_running;
 bool game_paused;

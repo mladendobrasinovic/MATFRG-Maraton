@@ -94,30 +94,29 @@ bool collide_avatar_sphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r)
 {
     /* Avatarske koordinate blago transformisemo da bi bile uskladjene ostalim
      * objektima na stazi. */
-    GLfloat ax = avatar.x + 2.0, ay = avatar.y, az = avatar.z;
+    GLfloat ax = avatar.x + 2.0, ay = avatar.y + (avatar_h / 2) / field_w,
+	az = avatar.z;
+    GLfloat length = avatar_h / 2;
     GLfloat dx, dy, dz;
     GLfloat bbox_limit;
     
-    /* Bounding-box provera (Kocke su poravnate sa osama). */
-    dx = SQUARE((ax - x) * field_w);
-    dy = SQUARE((ay - y) * field_w);
-    dz = SQUARE((az - z) * field_w);
-    
-    bbox_limit = SQUARE(avatar_h / 2 + r);
-    /* Kvadrat sluzi izjednacavanju znakova. */
-    if(dx > bbox_limit || dy > bbox_limit || dz > bbox_limit)
-	return false;
-
-    /* Provera kolizije sa sferom. */
-    bool nearx, neary, nearz;
-    int near_counter = 0;
-    GLfloat length = avatar_h / 2;
-    nearx = neary = nearz = false;
-
-    /* Sada nam treba absolutna udaljenost sfere i kocke po osama. */
+    /* Bounding-box provera (Kocke su poravnate sa osama), treba absolutna
+     * udaljenost sfere i kocke po osama i za naredni deo provere. */
     dx = fabs((ax - x) * field_w);
     dy = fabs((ay - y) * field_w);
     dz = fabs((az - z) * field_w);
+
+    /* Znamo da je znak pozitivan. */
+    bbox_limit = length + r;
+
+    if(dx >= bbox_limit || dy >= bbox_limit || dz >= bbox_limit)
+	return false;
+    
+    /* Provera kolizije sa sferom. */
+    bool nearx, neary, nearz;
+    int near_counter = 0;
+
+    nearx = neary = nearz = false;
 
     /* Odredjujemo u kojem od odsecaka prostora koje odredjuje kocka se nalazi
      * centar sfere. */
@@ -138,7 +137,7 @@ bool collide_avatar_sphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r)
     }
 
     if(near_counter == 3)
-	/* Ako je sfera je near_counter == 3, onda je centar unutar kocke. */
+	/* Ako je near_counter == 3, onda je centar sfere unutar kocke. */
 	return true;
 
     if(near_counter == 2)
@@ -154,13 +153,12 @@ bool collide_avatar_sphere(GLfloat x, GLfloat y, GLfloat z, GLfloat r)
 	    return SQUARE(dz - length) + SQUARE(dy - length) < SQUARE(r);
 	if(neary)
 	    return SQUARE(dx - length) + SQUARE(dz - length) < SQUARE(r);
-	/* nearz: */
-	return SQUARE(dx - length) + SQUARE(dz - length) < SQUARE(r);
+	/* Konacno, nearz: */
+	return SQUARE(dx - length) + SQUARE(dy - length) < SQUARE(r);
     }
-    
-    
-    /* near_counter == 0: Ako je naspram temena kocke, racunamo udaljenost
-     * centra sfere od temena. */
+        
+    /* Konacno, near_counter == 0: Ako je naspram temena kocke, racunamo
+     * udaljenost centra sfere od temena. */
     return SQUARE(dx - length) + SQUARE(dy - length) + SQUARE(dz - length) < SQUARE(r);
 }
 
@@ -292,7 +290,7 @@ GLfloat coin_scale(int death_mod)
 }
 
 void pickup_coins()
-/*  */
+/* Provera sudara za nagrade na stazi i evidencija. */
 {
     int i;
     bonus_t b = curr_seg->bonus;
@@ -302,7 +300,7 @@ void pickup_coins()
 	coin_t c = curr_seg->coins[i];
 
 	if(c.type != COIN_NIL && !c.dying
-	   && collide_avatar_sphere(c.x, coin_height, c.z, coin_radius / 2))
+	   && collide_avatar_sphere(c.x, coin_height, c.z, coin_radius))
 	{
 	    switch(c.type)
 	    {
@@ -324,6 +322,8 @@ void pickup_coins()
 	}
     }
 
+    /* BUG: Ovo ne uspeva za bonus na next_seg-u iako ga avatar moze
+     * dodirivati. */
     if(b.type != BONUS_NIL && !b.dying &&
        collide_avatar_sphere(b.x, bonus_height, b.z, bonus_radius))
     {

@@ -10,9 +10,9 @@ GLfloat randf(GLfloat start, GLfloat end)
     return start + (GLfloat)((GLdouble)rand() / RAND_MAX) * (end - start);
 }
 
-int randrange(int start, int end)
+int randint(int start, int end)
 {
-    return (int)floorf(randf(start, end));
+    return (int)floorf(randf(start, end + 1));
 }
 
 int binom(int n, float p)
@@ -79,12 +79,12 @@ enum patch_type
 };
 
 int draw_safe(segment_t* seg, int start, int end)
-/* Postavlja platformu od 5 do 7 polja, moze biti ogranicena na manje. */
+/* Postavlja platformu od 5 do 6 polja, moze biti ogranicena na manje. */
 {
     int i, j;
     
     /* Ocekujemo da end - start pripada 5-7.  */
-    end = randrange(start + 5, end);
+    end = randint(start + 5, end);
 
     for(i = start; i < end; i++)
 	for(j = 0; j < TRK_WIDTH; j++)
@@ -95,11 +95,11 @@ int draw_safe(segment_t* seg, int start, int end)
 }
 
 int draw_semi_safe(segment_t* seg, int start, int end)
-/* Postavlja platformu od 2 do 4 polja, moze biti ogranicena na manje. */
+/* Postavlja platformu od 2 do 3 polja, moze biti ogranicena na manje. */
 {
     int i, j;
     
-    end = randrange(start + 2, end);
+    end = randint(start + 2, end);
 
     for(i = start; i < end; i++)
 	for(j = 0; j < TRK_WIDTH; j++)
@@ -118,7 +118,7 @@ int draw_obstacle(segment_t* seg, int start, int end)
     int volume, remove = 0;
     bool flip = false;
 
-    end = randrange(start + 1, end);
+    end = randint(start + 1, end);
 
     /* Racunamo kakvog ce oblika prepreka biti. */
     if(randf(0, 1) < 0.3)
@@ -144,7 +144,7 @@ int draw_obstacle(segment_t* seg, int start, int end)
 	for(j = 0; j < TRK_WIDTH; j++)
 	{
 	    /* Omogucavamo da se neka od polja nasumicno popune.*/
-	    if(remove >= 0 && randf(0, 1) < 0.66 * ((float)remove / (float)volume))
+	    if(remove > 0 && randf(0, 1) < 0.66 * ((float)remove / (float)volume))
 	    {
 		remove--;
 		flip = true;
@@ -187,7 +187,7 @@ void init_seg(segment_t* seg)
 	case SEMI:
 	case SAFE:
 	    /* Postavljamo prepreku. */
-	    end = (len >= 3) ? i + 3 : SEG_LENGTH-2;
+	    end = (len >= 2) ? i + 2 : SEG_LENGTH-2;
 	    i+= draw_obstacle(seg, i, end);
 	    last_patch = EASY;
 	    break;
@@ -196,7 +196,7 @@ void init_seg(segment_t* seg)
 	    len = SEG_LENGTH - 2 - i;
 	    if(len >= 5 && randf(0, 1) < 0.76)
 	    {
-		end = (len >= 7) ? i + 7 : SEG_LENGTH-2;
+		end = (len >= 6) ? i + 6 : SEG_LENGTH-2;
 		i+= draw_safe(seg, i, end);
 		last_patch = SAFE;
 		break;
@@ -204,14 +204,15 @@ void init_seg(segment_t* seg)
 	    else if(len >= 2)
 	    {
 		len = SEG_LENGTH - 2 - i;
-		end = (len >= 4) ? i + 4 : SEG_LENGTH-2;
+		end = (len >= 3) ? i + 3 : SEG_LENGTH-2;
 		i+= draw_semi_safe(seg, i, end);
 		last_patch = SEMI;
 		break;
 	    }
-	    /* https://developers.redhat.com/blog/2017/03/10/wimplicit-fallthrough-in-gcc-7/ */
-	    __attribute__((fallthrough));
+	    /* Izbegavamo implicitno propadanje u switch-u. */
+	    goto fill_in;
 	default:
+	fill_in:
 	    /* Ako ne mozemo da nacrtamo zeljeni element crtamo sigurnu platformu. */
 	    for(j = 0; j < TRK_WIDTH; j++)
 		set_field(seg, i, j);
@@ -242,14 +243,14 @@ void init_seg(segment_t* seg)
 	for(j = 0; !failed && j < i; j++)
 	{
 	    GLfloat dx, dz;
-	    /* Ostavljamo dodatni prostor potcenjujuci blizinu novcica. */
-	    dx = (x - seg->coins[j].x);
-	    dz = (z - seg->coins[j].z);
 
-	    /* FIX: coin_radius je u stvari precnik. */
+	    /* Dozvoljavamo da se novcici dodiruju. */
+	    dx = (x - seg->coins[j].x) * field_w;
+	    dz = (z - seg->coins[j].z) * field_w;
+
 	    /* Ako su centri ogranicavajucih sfera na manjoj daljini od zbira
 	     * precnika onda se seku. */
-	    if(SQUARE(dx) + SQUARE(dz) < SQUARE(coin_radius))
+	    if(SQUARE(dx) + SQUARE(dz) < SQUARE(coin_radius * 2))
 		failed = true;
 	}
 
@@ -259,11 +260,8 @@ void init_seg(segment_t* seg)
 	    i--;
 
 	    if(fail == fail_limit)
-	    {
 		/* Ogranicavamo broj ponavljanja petlje. */
-		printf("fail\n");
 		break;
-	    }
 	    else
 		continue;
 	}
@@ -274,7 +272,8 @@ void init_seg(segment_t* seg)
 	seg->coins[i].z = z;
 	seg->coins[i].dying = false;
 	seg->coins[i].type = rand_coin();
-	seg->coins[i].rot_mod = randrange(0, TICK_RATE * COIN_BEAT);
+	/* CHECK: Da li je ovo zeljeni opseg modula rotacije. */
+	seg->coins[i].rot_mod = randint(0, TICK_RATE * COIN_BEAT - 1);
     }
     seg->len_coins = i;
 
